@@ -1,0 +1,149 @@
+/* Contenedor principal */
+.image-upload-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 150px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #f8f9fa;
+  border: 2px dashed #ced4da;
+  transition: all 0.3s ease;
+}
+
+.image-upload-container:hover {
+  border-color: #6c757d;
+}
+
+.image-upload-container.dragover {
+  border-color: #0d6efd;
+  background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* Contenedor de previsualización */
+.image-upload-preview-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* Imagen de previsualización */
+.image-upload-preview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: all 0.3s ease;
+}
+
+/* Video de cámara */
+.image-upload-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-color: #000;
+}
+
+/* Canvas (oculto) */
+.image-upload-canvas {
+  display: none;
+}
+
+/* Botón de cámara */
+.image-upload-camera {
+  position: absolute;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  /* Posición centrada por defecto */
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.image-upload-camera:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Botón de capturar */
+.image-upload-capture {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.8);
+  color: #000;
+  border: 2px solid #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 24px;
+}
+
+.image-upload-capture:hover {
+  background-color: #fff;
+}
+
+/* Botón de cancelar */
+.image-upload-cancel {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(220, 53, 69, 0.7);
+  color: white;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.image-upload-cancel:hover {
+  background-color: rgba(220, 53, 69, 0.9);
+}
+
+/* Botón de eliminar */
+.image-upload-remove {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: rgba(220, 53, 69, 0.7);
+  color: white;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.image-upload-remove:hover {
+  background-color: rgba(220, 53, 69, 0.9);
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Bootstrap Datepicker</title>
+
+    <!-- Bootstrap CSS Local -->
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Datepicker CSS Local -->
+    <link href="assets/plugins/datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet">
+</head>
+<body class="p-5 bg-light">
+
+    <div class="container">
+        <h2 class="mb-4">Formulario con Bootstrap Datepicker en Español</h2>
+        <form action="procesar.php" method="POST">
+            <div class="mb-3">
+                <label for="datepicker" class="form-label">Selecciona una fecha:</label>
+                <input type="text" id="datepicker" name="fecha" class="form-control datepicker" placeholder="dd/mm/yyyy" required>
+            </div>
+            <button type="submit" class="btn btn-success">Enviar</button>
+        </form>
+    </div>
+
+    <!-- jQuery Local -->
+    <script src="assets/js/jquery-3.7.1.min.js"></script>
+
+    <!-- Bootstrap JS Local -->
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Bootstrap Datepicker JS Local -->
+    <script src="assets/plugins/datepicker/js/bootstrap-datepicker.min.js"></script>
+
+    <!-- Idioma español Local -->
+    <script src="assets/plugins/datepicker/js/locales/bootstrap-datepicker.es.min.js"></script>
+
+    <!-- Inicialización -->
+    <script>
+        $(document).ready(function () {
+            // Inicializar el datepicker
+            $('#datepicker').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'es',
+                autoclose: true,
+                todayBtn: true,
+                todayHighlight: true,
+                weekStart: 1
+            });
+        });
+    </script>
+
+</body>
+</html>

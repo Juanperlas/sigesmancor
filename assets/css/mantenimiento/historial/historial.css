@@ -1,0 +1,825 @@
+/**
+ * Estilos para el módulo de Historial de Mantenimientos
+ * SIGESMANCOR
+ */
+
+/* Variables de colores */
+:root {
+  --color-primary: rgb(21, 113, 176);
+  --color-primary-dark: rgb(18, 95, 148);
+  --color-primary-light: rgba(21, 113, 176, 0.1);
+  --color-success: #20c997;
+  --color-warning: #ff8c00;
+  --color-danger: #e63946;
+  --color-secondary: #6c757d;
+
+  /* Colores para botones de exportación */
+  --color-excel: #217346;
+  --color-pdf: #e63946;
+  --color-copy: #6c757d;
+  --color-print: #0d6efd;
+
+  /* Colores para tipos de mantenimiento */
+  --color-correctivo: #ff8c00;
+  --color-preventivo: #20c997;
+}
+
+/* Contenedor principal */
+#main-content {
+  padding: 0.5rem;
+}
+
+/* Cabecera compacta */
+.page-header {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.page-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0;
+  color: var(--color-primary);
+}
+
+/* Filtros */
+.filtros-container {
+  background-color: #fff;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.filtros-header {
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.3rem 1rem;
+  color: #fff;
+  background-color: var(--color-primary);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.filtros-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+  padding: 0.5rem 1rem;
+}
+
+.filtro-grupo {
+  flex: 1;
+  min-width: 120px;
+}
+
+.filtro-label {
+  display: block;
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+  color: #555;
+  font-weight: 500;
+}
+
+.filtro-select {
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  background-color: #fff;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.filtro-select:focus {
+  border-color: var(--color-primary);
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(21, 113, 176, 0.25);
+}
+
+.filtros-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.btn-aplicar {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.btn-aplicar:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.btn-limpiar {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: none;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.btn-limpiar:hover {
+  color: black;
+  text-decoration: underline;
+}
+
+/* Layout de dos columnas */
+.mantenimientos-layout {
+  display: grid;
+  grid-template-columns: 75% 24.2%;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.mantenimientos-table-container {
+  flex: 1;
+  min-width: 0;
+  background-color: #fff;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+/* Estilos para el panel de detalles - CORREGIDO */
+.mantenimientos-detail-container {
+  background-color: #fff;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+  position: sticky;
+  top: 60px;
+  /* ELIMINADAS TODAS LAS TRANSICIONES Y ANIMACIONES PROBLEMÁTICAS */
+}
+
+.mantenimientos-detail-container.active {
+  display: block;
+}
+
+/* Animación simplificada SOLO para opacidad */
+.mantenimientos-detail-container.loading {
+  opacity: 0.8;
+}
+
+.mantenimientos-detail-container.loaded {
+  opacity: 1;
+}
+
+/* ELIMINADA la animación detail-fade-in que causaba problemas */
+
+/* Tabla de mantenimientos */
+.table-container {
+  overflow-x: 100%;
+}
+
+/* Tabla de historial - Siguiendo el diseño del módulo preventivo */
+#historial-table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: rgb(249, 251, 254);
+  border: none;
+  font-size: 0.8125rem;
+}
+
+#historial-table th,
+#historial-table td {
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 17.14px;
+  padding: 2px 5px;
+  height: 20px;
+  border-radius: 2px;
+  border-width: 0.9px;
+  vertical-align: middle;
+  background-color: rgb(249, 251, 254);
+  border: 1px solid rgb(209, 224, 237);
+  border-radius: 2px;
+  text-align: center;
+}
+
+#historial-table th {
+  text-align: center;
+  vertical-align: middle;
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid rgb(13, 92, 148);
+}
+
+/* Alinear a la izquierda solo la columna de código */
+#historial-table td:nth-child(3) {
+  text-align: center;
+  font-weight: 700;
+}
+
+#historial-table td:nth-child(4) {
+  text-align: left;
+  font-weight: 500;
+}
+
+/* Hover and selected row */
+#historial-table tbody tr:hover td {
+  background-color: rgb(240, 248, 255);
+  border-top: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+}
+
+#historial-table tbody tr.selected td {
+  background-color: var(--color-primary);
+  color: white !important;
+  font-weight: 700;
+  border-top: 2px solid var(--color-primary-dark);
+  border-bottom: 2px solid var(--color-primary-dark);
+  border-left: 1px solid var(--color-primary);
+  border-right: 1px solid var(--color-primary);
+}
+
+/* Imagen en tabla */
+.mantenimiento-imagen-tabla {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ffffff;
+  cursor: pointer;
+}
+
+/* Badges para tipos de mantenimiento */
+.tipo-badge {
+  display: inline-block;
+  padding: 0rem 0.3rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  width: 100%;
+  max-width: 120px;
+}
+
+.tipo-correctivo {
+  background-color: #fff3e6;
+  color: var(--color-correctivo);
+  border: 1px solid #ffd8b2;
+}
+
+.tipo-preventivo {
+  background-color: #e6fff0;
+  color: var(--color-preventivo);
+  border: 1px solid #b2ffd8;
+}
+
+/* Botones de acción */
+.btn-accion {
+  padding: 0.25rem;
+  font-size: 0.75rem;
+  border-radius: 0.25rem;
+  border: none;
+  margin-right: 0.25rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.btn-accion:last-child {
+  margin-right: 0;
+}
+
+.btn-ver-mantenimiento {
+  background-color: #17a2b8;
+  color: white;
+}
+
+/* DataTables personalizado */
+.dataTables_wrapper {
+  padding: 0;
+  font-size: 0.8125rem;
+}
+
+.dataTables_filter {
+  margin: 0.75rem 0.25rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.dataTables_filter label {
+  display: flex;
+  align-items: center;
+  font-size: 0.8125rem;
+  margin: 0;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.dataTables_filter input {
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  width: 250px;
+}
+
+.dataTables_length {
+  margin: 1rem 1rem;
+  font-size: 0.8125rem;
+  display: flex;
+  align-items: center;
+}
+
+.dataTables_length label {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.dataTables_length select {
+  margin: 0 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+  border: 2px solid #ced4da;
+  border-radius: 0.25rem;
+}
+
+.dataTables_info {
+  font-size: 0.8125rem;
+  padding: 0.5rem 1rem;
+  color: #6c757d;
+}
+
+/* Estilo mejorado para la paginación */
+.dataTables_paginate {
+  font-size: 0.75rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.dataTables_paginate .paginate_button {
+  padding: 0.2rem 0.4rem;
+  margin: 0 0.125rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  background-color: #fff;
+  font-size: 0.5rem;
+  color: var(--color-primary);
+}
+
+.dataTables_paginate .paginate_button.current {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  font-weight: bold;
+}
+
+.dataTables_paginate .paginate_button:hover:not(.current) {
+  background-color: #e9ecef;
+}
+
+.dataTables_paginate .paginate_button.disabled {
+  color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Botones de exportación mejorados con colores representativos */
+.dt-buttons {
+  margin: 0.75rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dt-buttons .btn {
+  position: relative;
+  overflow: hidden;
+  font-size: 0.8125rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.dt-buttons .btn i {
+  margin-right: 0.25rem;
+}
+
+/* Botón de copiar - Color morado/azul */
+.dt-buttons .buttons-copy {
+  background-color: #6366f1;
+}
+
+.dt-buttons .buttons-copy:hover {
+  background-color: #4f46e5;
+}
+
+/* Botón de Excel - Color verde */
+.dt-buttons .buttons-excel {
+  background-color: #22c55e;
+}
+
+.dt-buttons .buttons-excel:hover {
+  background-color: #16a34a;
+}
+
+/* Botón de PDF - Color rojo */
+.dt-buttons .buttons-pdf {
+  background-color: #ef4444;
+}
+
+.dt-buttons .buttons-pdf:hover {
+  background-color: #dc2626;
+}
+
+/* Botón de imprimir - Color azul */
+.dt-buttons .buttons-print {
+  background-color: var(--color-primary);
+}
+
+.dt-buttons .buttons-print:hover {
+  background-color: #1152dd;
+}
+
+/* Efecto de onda/ripple */
+.dt-buttons .btn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.4);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+  pointer-events: none;
+}
+
+.dt-buttons .btn:hover::after {
+  animation: ripple 1.5s ease-out infinite;
+}
+
+/* Keyframes para la animación de onda */
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  20% {
+    transform: scale(15, 15);
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(25, 25);
+  }
+}
+
+/* Panel de detalles - CORREGIDO */
+.detail-header {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0;
+  border-top-left-radius: 0.375rem;
+  border-top-right-radius: 0.375rem;
+}
+
+.detail-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: white;
+}
+
+.detail-subtitle {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 0;
+}
+
+/* Styles for the header image */
+.detail-header-image {
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid white;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detail-header-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.detail-content {
+  padding: 1rem;
+  /* ELIMINADAS TODAS LAS ANIMACIONES Y TRANSICIONES */
+}
+
+.detail-image {
+  width: 100%;
+  max-width: 150px;
+  height: auto;
+  border-radius: 0.375rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid #e9ecef;
+}
+
+.detail-section {
+  margin-bottom: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  border: 1px solid #e9ecef;
+}
+
+.detail-section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-primary);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+}
+
+.detail-section-title i {
+  margin-right: 0.5rem;
+}
+
+.detail-item {
+  margin-bottom: 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #6c757d;
+  margin-right: 0.25rem;
+}
+
+.detail-value {
+  color: #212529;
+}
+
+.detail-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Estado vacío - SIN ANIMACIONES PROBLEMÁTICAS */
+.detail-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.detail-empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-primary);
+}
+
+.detail-empty-text {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #525f7f;
+  line-height: 1.5;
+  max-width: 280px;
+}
+
+/* ELIMINADAS TODAS LAS ANIMACIONES PROBLEMÁTICAS */
+
+/* Modales mejorados */
+.modal-header {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.75rem 1rem;
+}
+
+.modal-title {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.modal-body {
+  padding: 1rem;
+}
+
+.modal-footer {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+}
+
+/* Tarjetas para detalles */
+.detalle-card {
+  border: 1px solid #e9ecef;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#detalle-nombre {
+  padding: 0.25rem 1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.detalle-card-header {
+  background-color: #f8f9fa;
+  padding: 0.25rem 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #e9ecef;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+}
+
+.detalle-card-header i {
+  margin-right: 0.5rem;
+}
+
+.detalle-label {
+  font-weight: 600;
+}
+
+.detalle-card-body {
+  padding: 0.3rem 1rem;
+  font-size: 0.8rem;
+}
+
+/* Imagen del mantenimiento en detalles */
+.mantenimiento-imagen-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+#detalle-imagen {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  border: 1px solid #e9ecef;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Tarjetas de formulario para el panel de detalles */
+.card-form {
+  border: 1px solid #e9ecef;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-form-header {
+  background-color: #f8f9fa;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #e9ecef;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+}
+
+.card-form-body {
+  padding: 0.75rem 1rem;
+}
+
+.form-label-sm {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.form-control-sm {
+  font-size: 0.8125rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+  .mantenimientos-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .mantenimientos-detail-container {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .filtros-content {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .filtro-grupo {
+    width: 100%;
+  }
+
+  .dataTables_filter {
+    justify-content: flex-start;
+  }
+
+  .dataTables_filter input {
+    width: 100%;
+  }
+
+  .dataTables_paginate {
+    justify-content: center;
+  }
+
+  .dt-buttons {
+    justify-content: center;
+  }
+}
+
+/* Estilos para la paginación de DataTables */
+.dt-paging-button {
+  background-color: #ffffff;
+  color: #1571b0;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.dt-length {
+  padding: 10px 10px;
+}
+.dt-paging {
+  display: flex;
+  gap: 5px;
+  align-self: self-end;
+  padding: 5px 5px;
+}
+.dt-search {
+  margin: 10px 10px;
+}
+.dt-paging-button {
+  background-color: #ffffff;
+  color: #1571b0;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.text-muted {
+  font-size: 11px;
+}

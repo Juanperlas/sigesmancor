@@ -1,0 +1,1061 @@
+/**
+ * Estilos para el módulo de Configuración
+ * SIGESMANCOR
+ */
+
+/* Variables de colores */
+:root {
+  --color-primary: rgb(21, 113, 176);
+  --color-primary-dark: rgb(18, 95, 148);
+  --color-primary-light: rgba(21, 113, 176, 0.1);
+  --color-success: #20c997;
+  --color-warning: #ff8c00;
+  --color-danger: #e63946;
+  --color-secondary: #6c757d;
+}
+
+/* Contenedor principal */
+#main-content {
+  padding: 1rem;
+}
+
+/* Cabecera */
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0;
+  color: var(--color-primary);
+}
+
+/* Layout de configuración */
+.configuracion-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+/* Navegación lateral */
+.config-nav {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+  overflow: hidden;
+}
+
+.config-nav-header {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+}
+
+.config-nav-header h5 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.config-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.config-nav-item {
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #f1f3f4;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #5f6368;
+}
+
+.config-nav-item:hover {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.config-nav-item.active {
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: 500;
+}
+
+.config-nav-item:last-child {
+  border-bottom: none;
+}
+
+.config-nav-item i {
+  font-size: 1.1rem;
+}
+
+/* Contenido de configuración */
+.config-content {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-height: 600px;
+}
+
+/* Secciones de configuración */
+.config-section {
+  display: none;
+  padding: 2rem;
+}
+
+.config-section.active {
+  display: block;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.config-section-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f1f3f4;
+}
+
+.config-section-header h4 {
+  color: var(--color-primary);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.config-section-header h4 i {
+  color: var(--color-primary);
+}
+
+.config-section-header p {
+  margin: 0;
+  color: #6c757d;
+}
+
+/* Tarjetas de configuración */
+.config-card {
+  border: 1px solid #e9ecef;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.config-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.config-card-header {
+  background-color: #f8f9fa;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #e9ecef;
+  color: var(--color-primary);
+}
+
+.config-card-header h6 {
+  margin: 0;
+  color: var(--color-primary);
+}
+
+.config-card-body {
+  padding: 1.5rem;
+}
+
+/* Formularios */
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem rgba(21, 113, 176, 0.25);
+}
+
+/* Switches personalizados */
+.form-check-input:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.form-check-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem rgba(21, 113, 176, 0.25);
+}
+
+.form-check-label {
+  font-size: 0.9rem;
+}
+
+.form-check-label strong {
+  color: #212529;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.form-check-label small {
+  color: #6c757d;
+  line-height: 1.3;
+}
+
+/* Acciones de configuración */
+.config-actions {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Elementos de información */
+.info-item {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.info-item strong {
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.info-item span {
+  color: #212529;
+  font-size: 0.9rem;
+}
+
+/* Sesiones activas */
+.session-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.session-info strong {
+  color: #212529;
+  font-size: 0.95rem;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.session-info small {
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+/* Acciones de soporte */
+.support-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+  .configuracion-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .config-nav {
+    order: 2;
+  }
+
+  .config-content {
+    order: 1;
+  }
+
+  .config-nav-list {
+    display: flex;
+    overflow-x: auto;
+    padding: 0.5rem;
+  }
+
+  .config-nav-item {
+    white-space: nowrap;
+    border-bottom: none;
+    border-right: 1px solid #f1f3f4;
+    min-width: 200px;
+  }
+
+  .config-nav-item:last-child {
+    border-right: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  #main-content {
+    padding: 0.5rem;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .config-section {
+    padding: 1rem;
+  }
+
+  .config-card-body {
+    padding: 1rem;
+  }
+
+  .config-actions {
+    flex-direction: column;
+  }
+
+  .support-actions {
+    flex-direction: column;
+  }
+
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estados de carga */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Efectos hover mejorados */
+.config-nav-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.config-nav-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.config-nav-item:hover::before {
+  left: 100%;
+}
+/* Diseños de navbar */
+.navbar-designs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.design-option {
+  text-align: center;
+  cursor: pointer;
+  padding: 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.design-option:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.design-option.active {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.design-preview {
+  width: 80px;
+  height: 50px;
+  border-radius: 0.25rem;
+  margin: 0 auto 0.5rem;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Sidebar (parte izquierda) */
+.design-preview::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 18px;
+  height: 100%;
+  border-radius: 0.25rem 0 0 0.25rem;
+}
+
+/* Topbar (parte superior derecha) */
+.design-preview::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  left: 18px;
+  height: 15px;
+  border-radius: 0 0.25rem 0 0;
+}
+
+/* Área de contenido (parte inferior derecha) */
+.design-preview .content-area {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 18px;
+  top: 15px;
+  background: #f8f9fa;
+  border-radius: 0 0 0.25rem 0;
+}
+
+/* Diseños predefinidos */
+.design-default {
+  background: linear-gradient(90deg, #1571b0 25%, #1571b0 25%);
+}
+
+.design-default::after {
+  background: #1571b0;
+}
+
+.design-dark {
+  background: linear-gradient(90deg, #2c3e50 25%, #34495e 25%);
+}
+
+.design-dark::after {
+  background: #2c3e50;
+}
+
+.design-blue {
+  background: linear-gradient(90deg, #0d47a1 25%, #e3f2fd 25%);
+}
+
+.design-blue::after {
+  background: #bbdefb;
+}
+
+.design-green {
+  background: linear-gradient(90deg, #2e7d32 25%, #e8f5e8 25%);
+}
+
+.design-green::after {
+  background: #c8e6c9;
+}
+
+/* NUEVOS DISEÑOS */
+.design-superdark {
+  background: linear-gradient(90deg, #000000 25%, #000000 25%);
+}
+
+.design-superdark::after {
+  background: #000000;
+}
+
+.design-bluetotal {
+  background: linear-gradient(90deg, #0d47a1 25%, #0d47a1 25%);
+}
+
+.design-bluetotal::after {
+  background: #0d47a1;
+}
+
+.design-custom {
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+  background-size: 400% 400%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Controles de color */
+.color-input-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.form-control-color {
+  width: 50px;
+  height: 38px;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  padding: 0.25rem;
+}
+
+.color-input-group .form-control {
+  flex: 1;
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+/* Vista previa del navbar */
+.preview-section {
+  border-top: 1px solid #e9ecef;
+  padding-top: 1rem;
+}
+
+.navbar-preview {
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  height: 120px;
+  position: relative;
+  background: #f8f9fa;
+}
+
+.preview-sidebar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 60px;
+  height: 100%;
+  background: var(--preview-navbar-bg, #1571b0);
+  color: var(--preview-navbar-text, #ffffff);
+  padding: 0.5rem 0.25rem;
+  font-size: 0.7rem;
+}
+
+.preview-logo {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  padding: 0.25rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.25rem;
+}
+
+.preview-menu-item {
+  padding: 0.25rem;
+  margin-bottom: 0.25rem;
+  border-radius: 0.25rem;
+  text-align: center;
+  font-size: 0.6rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.preview-menu-item.active {
+  background: var(--preview-navbar-active, #125a8a);
+}
+
+.preview-topbar {
+  position: absolute;
+  right: 0;
+  top: 0;
+  left: 60px;
+  height: 40px;
+  background: var(--preview-topbar-bg, #ffffff);
+  color: var(--preview-topbar-text, #333333);
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.preview-topbar-content {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Responsive para diseños */
+@media (max-width: 767.98px) {
+  .navbar-designs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .design-preview {
+    width: 60px;
+    height: 40px;
+  }
+
+  .color-input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-control-color {
+    width: 100%;
+  }
+}
+/* Secciones de colores separadas */
+.color-section-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  height: 100%;
+}
+
+.color-section-title {
+  color: var(--color-primary);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.color-controls .form-label {
+  font-weight: 500;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Vista previa mejorada */
+.preview-topbar {
+  position: absolute;
+  right: 0;
+  top: 0;
+  left: 60px;
+  height: 40px;
+  background: var(--preview-topbar-bg, #ffffff);
+  color: var(--preview-topbar-text, #333333);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.preview-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--preview-topbar-text, #333333);
+}
+
+.preview-search i {
+  font-size: 0.8rem;
+}
+
+.preview-icons {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.7rem;
+  color: var(--preview-topbar-text, #333333);
+}
+
+.preview-icons i {
+  font-size: 0.8rem;
+}
+
+/* Responsive para secciones de color */
+@media (max-width: 767.98px) {
+  .color-section-card {
+    margin-bottom: 1rem;
+  }
+}
+/* Botón de guardar con cambios */
+#btn-guardar-preferencias.btn-warning {
+  background-color: #ff8c00;
+  border-color: #ff8c00;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 140, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 140, 0, 0);
+  }
+}
+
+/* Modal de cambios sin guardar */
+#unsavedChangesModal .modal-content {
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+#unsavedChangesModal .modal-header {
+  background-color: #ff8c00;
+  color: white;
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+#unsavedChangesModal .btn-close {
+  filter: invert(1);
+}
+/* Estilos para la página de configuración */
+
+.config-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.config-nav {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.config-nav-item {
+  display: flex;
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  color: #6c757d;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.config-nav-item:hover {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.config-nav-item.active {
+  background: #007bff;
+  color: white;
+}
+
+.config-section {
+  display: none;
+}
+
+.config-section.active {
+  display: block;
+}
+
+/* Estilos para diseños de navbar */
+.design-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.design-option {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.design-option:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+}
+
+.design-option.active {
+  border-color: #007bff;
+  background: #f8f9ff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.25);
+}
+
+.design-preview {
+  height: 60px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.preview-navbar {
+  height: 40px;
+  width: 30%;
+  float: left;
+}
+
+.preview-topbar {
+  height: 20px;
+  width: 70%;
+  float: right;
+  margin-top: 0;
+}
+
+.design-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #495057;
+}
+
+/* Controles de color personalizados */
+.color-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.form-control-color {
+  width: 50px;
+  height: 38px;
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.color-input-group .form-control {
+  flex: 1;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+}
+
+/* Vista previa del navbar */
+.navbar-preview {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 200px;
+  position: relative;
+  background: #f8f9fa;
+}
+
+.preview-sidebar {
+  width: 250px;
+  height: 100%;
+  background: var(--preview-navbar-bg, #1571b0);
+  color: var(--preview-navbar-text, #ffffff);
+  padding: 15px;
+  float: left;
+}
+
+.preview-menu-item {
+  padding: 8px 12px;
+  margin: 4px 0;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.preview-menu-item:hover {
+  background: var(--preview-navbar-active, #125a8a);
+  color: var(--preview-navbar-active-text, #ffffff); /* NUEVO */
+}
+
+.preview-menu-item.active {
+  background: var(--preview-navbar-active, #125a8a);
+  color: var(--preview-navbar-active-text, #ffffff); /* NUEVO */
+  font-weight: 500;
+}
+
+.preview-topbar-area {
+  margin-left: 250px;
+  height: 60px;
+  background: var(--preview-topbar-bg, #ffffff);
+  color: var(--preview-topbar-text, #333333);
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.preview-search {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--preview-topbar-text, #333333);
+  opacity: 0.7;
+}
+
+.preview-user {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .design-options-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .color-input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-control-color {
+    width: 100%;
+    height: 45px;
+  }
+
+  .navbar-preview {
+    height: 150px;
+  }
+
+  .preview-sidebar {
+    width: 120px;
+    padding: 10px;
+  }
+
+  .preview-topbar-area {
+    margin-left: 120px;
+    padding: 10px;
+  }
+
+  .preview-menu-item {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.config-section.active {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Estilos para el botón de guardar con cambios */
+.btn-warning {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: #000;
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+  border-color: #d39e00;
+  color: #000;
+}
+
+/* Estilos para el modal de cambios sin guardar */
+.modal-content {
+  border-radius: 8px;
+}
+
+.modal-header {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-footer {
+  border-top: 1px solid #dee2e6;
+}
+
+/* Mejoras visuales adicionales */
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.form-label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.form-control:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-select:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Separadores visuales */
+.mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+h6.fw-bold {
+  color: #495057;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}

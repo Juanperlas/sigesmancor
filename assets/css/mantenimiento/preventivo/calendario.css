@@ -1,0 +1,292 @@
+/**
+ * Estilos para el Calendario de Mantenimientos Preventivos
+ * SIGESMANCOR
+ */
+
+/* Variables de colores */
+:root {
+  --color-primary: rgb(21, 113, 176);
+  --color-primary-dark: rgb(18, 95, 148);
+  --color-primary-light: rgba(21, 113, 176, 0.1);
+  --color-success: #20c997;
+  --color-warning: #ffc107;
+  --color-info: #17a2b8;
+  --color-danger: #e63946;
+  --color-secondary: #6c757d;
+}
+
+/* Layout principal */
+.calendario-layout {
+  display: grid;
+  grid-template-columns: 70% 29%;
+  gap: 1%;
+  margin-bottom: 1rem;
+}
+
+/* Contenedor del calendario */
+.calendario-container {
+  background-color: #fff;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+/* Panel lateral de mantenimientos */
+.mantenimientos-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Estilos para las tarjetas */
+.card {
+  border: none;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  margin-bottom: 0;
+}
+
+.card-header {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-bottom: none;
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+/* Leyenda del calendario */
+.calendar-legend {
+  display: flex;
+  gap: 15px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-color {
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+}
+
+.bg-warning {
+  background-color: var(--color-warning);
+}
+
+.bg-info {
+  background-color: var(--color-info);
+}
+
+/* Estilos para los eventos del calendario */
+.fc-event.event-pending {
+  background-color: var(--color-warning);
+  border-color: #e0a800;
+}
+
+.fc-event.event-completed {
+  background-color: var(--color-info);
+  border-color: #138496;
+}
+
+/* Estilos para FullCalendar */
+.fc {
+  font-family: "Inter", sans-serif;
+  font-size: 0.875rem;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.fc .fc-button-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.fc .fc-button-primary:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.fc .fc-button-primary:disabled {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  opacity: 0.65;
+}
+
+.fc .fc-button-primary:not(:disabled):active,
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  background-color: var(--color-primary-light);
+}
+
+.fc .fc-col-header-cell {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.fc .fc-daygrid-day-number {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+/* Estilos para las tablas */
+.table {
+  margin-bottom: 0;
+  font-size: 0.8125rem;
+}
+
+.table thead th {
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 0.5rem;
+  border-color: var(--color-primary-dark);
+}
+
+.table tbody td {
+  padding: 0.5rem;
+  vertical-align: middle;
+  border-color: #e9ecef;
+}
+
+/* Estilos para los días restantes */
+.dias-restantes {
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  text-align: center;
+}
+
+.dias-restantes.urgente {
+  background-color: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+}
+
+.dias-restantes.proximo {
+  background-color: rgba(255, 193, 7, 0.2);
+  color: #ff8c00;
+}
+
+.dias-restantes.normal {
+  background-color: rgba(32, 201, 151, 0.2);
+  color: #20c997;
+}
+
+/* Estilos para el modal */
+.modal-header {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.75rem 1rem;
+}
+
+.modal-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 1rem;
+}
+
+.modal-footer {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+}
+
+#maintenanceDetailsModal .badge {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+#maintenanceDetailsModal .badge.bg-warning {
+  color: #212529;
+}
+
+/* Loader para el calendario */
+.calendar-loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+  .calendario-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .mantenimientos-panel {
+    order: 2;
+  }
+
+  .calendario-container {
+    order: 1;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .fc .fc-toolbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .fc .fc-toolbar-title {
+    font-size: 1rem;
+  }
+
+  .calendar-legend {
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .page-actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .fc .fc-toolbar-chunk {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem;
+  }
+}

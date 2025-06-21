@@ -1,0 +1,858 @@
+/* Variables */
+:root {
+  --primary: #6366f1;
+  --primary-glow: rgba(99, 102, 241, 0.5);
+  --primary-dark: #4f46e5;
+  --primary-light: #818cf8;
+  --secondary: #f43f5e;
+  --secondary-glow: rgba(244, 63, 94, 0.5);
+  --dark: #0f172a;
+  --darker: #020617;
+  --light: #f8fafc;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+  --border-radius: 16px;
+  --card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --glow-size: 80px;
+}
+
+/* Estilos generales */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Outfit", sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--darker);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Preloader */
+.preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--darker);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  position: relative;
+}
+
+.double-bounce1,
+.double-bounce2 {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: var(--primary);
+  opacity: 0.6;
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: sk-bounce 1.5s infinite ease-in-out;
+}
+
+.double-bounce2 {
+  animation-delay: -0.75s;
+  background-color: var(--secondary);
+}
+
+@keyframes sk-bounce {
+  0%,
+  100% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1);
+  }
+}
+
+/* Canvas para Three.js */
+#bg-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+}
+
+/* Contenedor principal */
+.login-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Partículas interactivas */
+#particles-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Orbes flotantes */
+.floating-orb {
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    var(--primary),
+    transparent 70%
+  );
+  filter: blur(30px);
+  opacity: 0.4;
+  z-index: -1;
+  animation: floatOrb 15s infinite ease-in-out;
+}
+
+.orb-secondary {
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(
+    circle at 30% 30%,
+    var(--secondary),
+    transparent 70%
+  );
+  animation: floatOrb 12s infinite ease-in-out reverse;
+  animation-delay: -5s;
+  right: 10%;
+  top: 20%;
+}
+
+@keyframes floatOrb {
+  0% {
+    transform: translate(-30vw, -20vh);
+  }
+  25% {
+    transform: translate(10vw, -15vh);
+  }
+  50% {
+    transform: translate(30vw, 20vh);
+  }
+  75% {
+    transform: translate(0vw, 25vh);
+  }
+  100% {
+    transform: translate(-30vw, -20vh);
+  }
+}
+
+/* Tarjeta de login */
+.login-card {
+  position: relative;
+  width: 100%;
+  max-width: 450px;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--card-shadow);
+  padding: 2.5rem 2rem;
+  overflow: hidden;
+  z-index: 2;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  /* Ocultar inicialmente para la animación */
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* Efecto de brillo */
+.glow-effect {
+  position: absolute;
+  width: var(--glow-size);
+  height: var(--glow-size);
+  background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+  border-radius: 50%;
+  filter: blur(20px);
+  opacity: 0.7;
+  z-index: -1;
+  transition: var(--transition);
+  animation: moveGlow 8s infinite alternate ease-in-out;
+}
+
+@keyframes moveGlow {
+  0% {
+    top: 20%;
+    left: 20%;
+    background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+  }
+  50% {
+    top: 60%;
+    left: 60%;
+    background: radial-gradient(circle, var(--secondary-glow), transparent 70%);
+  }
+  100% {
+    top: 30%;
+    left: 70%;
+    background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+  }
+}
+
+/* Logo y branding */
+.brand-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.logo-container {
+  margin-bottom: 1.25rem;
+  position: relative;
+  display: inline-block;
+}
+
+.logo {
+  max-height: 60px;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
+  transition: var(--transition);
+  animation: pulseLogo 3s infinite alternate ease-in-out;
+}
+
+@keyframes pulseLogo {
+  0% {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+    transform: scale(1);
+  }
+  100% {
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.9));
+    transform: scale(1.05);
+  }
+}
+
+.brand-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  background: linear-gradient(
+    to right,
+    var(--primary-light),
+    var(--primary),
+    var(--secondary)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
+}
+
+.brand-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 400;
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+/* Formulario */
+.form-section {
+  position: relative;
+}
+
+.welcome-text {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.welcome-text h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.welcome-text p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+/* Alerta de error */
+.error-alert {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background-color: rgba(239, 68, 68, 0.1);
+  border-left: 4px solid var(--danger);
+  color: var(--danger);
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.error-alert i {
+  font-size: 1.25rem;
+  margin-right: 0.75rem;
+}
+
+.close-alert {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  padding: 0;
+}
+
+/* Formulario */
+.login-form {
+  position: relative;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+  position: relative;
+}
+
+/* Corregir el comportamiento de las etiquetas del formulario */
+.input-wrapper {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.input-wrapper i {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  transition: var(--transition);
+  z-index: 2;
+}
+
+.input-wrapper input {
+  width: 100%;
+  height: 54px;
+  padding: 0.9rem 3rem 0.9rem 3rem;
+  background-color: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: var(--transition);
+  position: relative;
+  z-index: 1;
+}
+
+.input-wrapper input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.input-wrapper label {
+  position: absolute;
+  left: 3rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  transition: var(--transition);
+  z-index: 2;
+  background: transparent;
+  padding: 0 0.25rem;
+}
+
+.input-wrapper input:focus + label,
+.input-wrapper input:not(:placeholder-shown) + label {
+  transform: translateY(-170%) translateX(-2.5rem) scale(0.8);
+  color: var(--primary);
+}
+
+.input-focus-effect {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(to right, var(--primary), var(--secondary));
+  transition: var(--transition);
+  z-index: 0;
+}
+
+.input-wrapper input:focus ~ .input-focus-effect {
+  width: 100%;
+}
+
+/* Corregir la posición del ícono del ojo */
+.password-toggle {
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  z-index: 3;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: var(--transition);
+  height: 24px;
+  width: 24px;
+}
+
+/* Asegurar que el input tenga suficiente padding a la derecha para el icono */
+.input-wrapper input[type="password"] {
+  padding-right: 3rem;
+}
+
+/* Opciones del formulario */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Checkbox personalizado */
+.custom-checkbox {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-left: 30px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.custom-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  transition: var(--transition);
+}
+
+.custom-checkbox:hover input ~ .checkmark {
+  border-color: var(--primary);
+}
+
+.custom-checkbox input:checked ~ .checkmark {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.custom-checkbox input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.custom-checkbox .checkmark:after {
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.label-text {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-left: 5px;
+}
+
+.forgot-link {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.forgot-link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, var(--primary), var(--secondary));
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.forgot-link:hover {
+  color: var(--primary-light);
+}
+
+.forgot-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Mejorar el botón de inicio de sesión */
+.login-button {
+  width: 100%;
+  height: 54px;
+  padding: 0.9rem;
+  background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  position: relative;
+  overflow: hidden;
+  z-index: 5; /* Aumentado el z-index para asegurar visibilidad */
+  margin-top: 0.5rem;
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);
+  letter-spacing: 0.5px;
+  opacity: 1 !important; /* Forzar opacidad */
+  visibility: visible !important; /* Forzar visibilidad */
+}
+
+.login-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, var(--primary-dark), var(--primary));
+  z-index: -1;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.login-button::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(45deg);
+  transition: all 0.8s;
+  z-index: 0;
+  opacity: 0;
+}
+
+.login-button:hover::after {
+  opacity: 1;
+  left: 100%;
+  top: 100%;
+}
+
+.login-button:hover::before {
+  opacity: 1;
+}
+
+.login-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.7);
+}
+
+.login-button:active {
+  transform: translateY(-1px);
+}
+
+.button-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  font-size: 1.25rem;
+}
+
+.login-button:hover .button-icon {
+  transform: translateX(5px);
+}
+
+.button-text {
+  position: relative;
+  z-index: 2;
+}
+
+/* Demo link */
+.demo-access {
+  text-align: center;
+  margin-top: 1.25rem;
+}
+
+.demo-link {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  position: relative;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.demo-link:hover {
+  background-color: rgba(99, 102, 241, 0.1);
+  color: var(--primary-light);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.demo-link i {
+  font-size: 1.1rem;
+}
+
+/* Información de la empresa */
+.company-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 0.75rem;
+  background: rgba(30, 41, 59, 0.4);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.company-logo img {
+  height: 25px;
+  width: auto;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.7));
+}
+
+.company-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Footer */
+.login-footer {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 1.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* Animación de éxito */
+#success-animation {
+  margin: 2rem auto;
+  width: 150px;
+  height: 150px;
+}
+
+/* Asegurar que el placeholder esté oculto cuando el input está enfocado */
+.input-wrapper input:focus::placeholder,
+.input-wrapper input:not(:placeholder-shown)::placeholder {
+  opacity: 0;
+}
+
+/* Hacer que el placeholder sea transparente para evitar superposición con la etiqueta */
+.input-wrapper input::placeholder {
+  color: transparent;
+}
+
+/* Responsive */
+@media (max-width: 767.98px) {
+  .login-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .brand-title {
+    font-size: 1.75rem;
+  }
+
+  .form-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .floating-orb {
+    width: 200px;
+    height: 200px;
+  }
+
+  .orb-secondary {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .login-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .brand-title {
+    font-size: 1.5rem;
+  }
+
+  .welcome-text h2 {
+    font-size: 1.25rem;
+  }
+
+  .company-info {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}
+
+/* Animaciones adicionales */
+@keyframes float {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--primary-glow);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+  }
+}
+
+/* Animaciones para elementos específicos */
+.logo-container {
+  animation: float 6s ease-in-out infinite;
+}
+
+.login-button {
+  animation: pulse 2s infinite;
+}
+
+/* Efecto de desenfoque para el fondo */
+.blur-effect {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: -1;
+}
+
+/* Animación para el input focus */
+@keyframes focusAnimation {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.input-wrapper input:focus ~ .input-focus-effect {
+  animation: focusAnimation 0.3s forwards;
+}
+
+/* Efecto de hover para el botón */
+@keyframes buttonGlow {
+  0% {
+    box-shadow: 0 0 5px var(--primary-glow);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--primary-glow);
+  }
+  100% {
+    box-shadow: 0 0 5px var(--primary-glow);
+  }
+}
+
+.login-button:hover {
+  animation: buttonGlow 2s infinite;
+}

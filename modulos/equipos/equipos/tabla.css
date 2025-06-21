@@ -1,0 +1,148 @@
+/* Estilos generales */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Exo 2", sans-serif;
+  background-color: #f0f3f8;
+  color: #333;
+  font-size: 4px !important;
+  line-height: 1;
+}
+
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+/* Panel */
+.panel {
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+}
+
+.panel-heading {
+  background-color: rgb(21, 113, 176);
+  color: white;
+  padding: 10px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.panel-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.panel-body {
+  padding: 0;
+}
+
+/* Tabla */
+.table-responsive {
+  overflow-x: auto;
+  min-height: 0.01%;
+}
+
+.table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0px; /* Adds space between cells to make borders distinct */
+  background-color: rgb(249, 251, 254);
+}
+
+.table-bordered {
+  border: none; /* Remove default table border */
+}
+
+.table th,
+.table td {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 17.14px;
+  padding: 2px 5px;
+  height: 23px;
+  border-radius: 2px;
+  border-width: 0.9px;
+  vertical-align: middle;
+  background-color: rgb(249, 251, 254);
+  border: 1px solid rgb(209, 224, 237); /* Individual border for each cell */
+  border-radius: 2px; /* Rounded corners for each cell */
+}
+
+.table thead th {
+  vertical-align: middle;
+  background-color: rgb(21, 113, 176);
+  color: white;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid rgb(13, 92, 148); /* Darker blue border for headers */
+}
+
+/* Hover y fila seleccionada */
+.table tbody tr:hover td,
+.table tbody tr.selected-row td {
+  background-color: rgb(
+    240,
+    248,
+    255
+  ); /* Light blue background on hover or when selected */
+  border-top: 2px solid rgb(21, 113, 176);
+  border-bottom: 2px solid rgb(21, 113, 176);
+}
+
+/* Alineación de texto */
+.text-center {
+  text-align: center;
+}
+
+/* Valores especiales */
+.cobertura {
+  background-color: #fff9e6 !important;
+  color: #ff8c00;
+  font-weight: bold;
+}
+
+.valor-positivo {
+  color: #0e6eb8;
+  font-weight: bold;
+}
+
+.valor-negativo {
+  color: #e63946;
+  font-weight: bold;
+}
+
+/* Iconos */
+.icon-hospital::before {
+  content: "🏥";
+  margin-right: 3px;
+  font-size: 12px;
+}
+
+.icon-file::before {
+  content: "📄";
+  margin-right: 3px;
+  font-size: 12px;
+}
+
+/* Responsive */
+@media screen and (max-width: 767px) {
+  .table-responsive {
+    width: 100%;
+    margin-bottom: 15px;
+    overflow-y: hidden;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    border: 1px solid #ddd;
+  }
+}
