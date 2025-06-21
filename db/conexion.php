@@ -1,13 +1,15 @@
 <?php
-class Conexion {
+class Conexion
+{
     private $host = 'localhost';
-    private $db = 'sigesman';
+    private $db = 'sigesmancor';
     private $user = 'root';
     private $pass = '';
     private $charset = 'utf8mb4';
     private $conn;
 
-    public function __construct() {
+    public function __construct()
+    {
         try {
             $dsn = "mysql:host={$this->host};dbname={$this->db};charset={$this->charset}";
             $options = [
@@ -21,52 +23,59 @@ class Conexion {
         }
     }
 
-    public function getConexion() {
+    public function getConexion()
+    {
         return $this->conn;
     }
 
-    public function query($sql, $params = []) {
+    public function query($sql, $params = [])
+    {
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         return $stmt;
     }
 
-    public function select($sql, $params = []) {
+    public function select($sql, $params = [])
+    {
         $stmt = $this->query($sql, $params);
         return $stmt->fetchAll();
     }
 
-    public function selectOne($sql, $params = []) {
+    public function selectOne($sql, $params = [])
+    {
         $stmt = $this->query($sql, $params);
         return $stmt->fetch();
     }
 
-    public function insert($table, $data) {
+    public function insert($table, $data)
+    {
         $columns = implode(', ', array_keys($data));
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
-        
+
         $sql = "INSERT INTO {$table} ({$columns}) VALUES ({$placeholders})";
-        
+
         $this->query($sql, array_values($data));
         return $this->conn->lastInsertId();
     }
 
-    public function update($table, $data, $where, $whereParams = []) {
+    public function update($table, $data, $where, $whereParams = [])
+    {
         $set = [];
         foreach (array_keys($data) as $column) {
             $set[] = "{$column} = ?";
         }
         $setClause = implode(', ', $set);
-        
+
         $sql = "UPDATE {$table} SET {$setClause} WHERE {$where}";
-        
+
         $params = array_merge(array_values($data), $whereParams);
         $this->query($sql, $params);
-        
+
         return true;
     }
 
-    public function delete($table, $where, $params = []) {
+    public function delete($table, $where, $params = [])
+    {
         $sql = "DELETE FROM {$table} WHERE {$where}";
         $this->query($sql, $params);
         return true;
@@ -78,7 +87,8 @@ class Conexion {
      * @param string $permiso
      * @return bool
      */
-    public function hasPermission($usuario_id, $permiso) {
+    public function hasPermission($usuario_id, $permiso)
+    {
         $sql = "SELECT COUNT(*) as total
                 FROM usuarios_roles ur
                 JOIN roles_permisos rp ON ur.rol_id = rp.rol_id
@@ -93,7 +103,8 @@ class Conexion {
      * @param int $usuario_id
      * @return array
      */
-    public function getUserRoles($usuario_id) {
+    public function getUserRoles($usuario_id)
+    {
         $sql = "SELECT r.nombre
                 FROM usuarios_roles ur
                 JOIN roles r ON ur.rol_id = r.id
@@ -101,4 +112,3 @@ class Conexion {
         return array_column($this->select($sql, [$usuario_id]), 'nombre');
     }
 }
-?>

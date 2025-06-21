@@ -2,7 +2,7 @@
 
 // Configuración de la conexión a la base de datos
 $host = 'localhost';
-$dbname = 'sigesman';
+$dbname = 'sigesmancor';
 $username = 'root';
 $password = '';
 
