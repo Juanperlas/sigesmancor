@@ -1,10 +1,10 @@
 <?php
 
 // Configuración de la conexión a la base de datos
-$host = 'localhost';
-$dbname = 'sigesmancor';
-$username = 'root';
-$password = '';
+$host = 'sql207.infinityfree.com';
+$dbname = 'if0_38802651_sigesmancor';
+$username = 'if0_38802651';
+$password = 'juanarroyo123';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);

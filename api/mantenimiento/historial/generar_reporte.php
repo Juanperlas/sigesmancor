@@ -341,7 +341,7 @@ try {
 
     // Obtener el nombre del usuario autenticado
     $usuarioActual = getUsuarioActual();
-    $autor = $usuarioActual['nombre'] ?: 'SIGESMAN';
+    $autor = $usuarioActual['nombre'] ?: 'SIGESMANCOR';
 
     // Crear una clase personalizada de TCPDF para manejar el pie de página
     class MYPDF extends TCPDF
@@ -374,7 +374,7 @@ try {
             // SIGESMAN
             $this->SetFont($this->fontname, 'B', 8);
             $this->SetTextColor(21, 113, 176);
-            $this->Cell(0, 3, 'SIGESMAN - Sistema de Gestión de Mantenimiento', 0, 1, 'C');
+            $this->Cell(0, 3, 'SIGESMANCOR - Sistema de Gestión de Mantenimiento de Cordial', 0, 1, 'C');
 
             // Informe generado
             $this->SetFont($this->fontname, '', 7);
@@ -407,11 +407,11 @@ try {
     $pdf->setAutor($autor);
 
     // Configuración del documento
-    $pdf->SetCreator('SIGESMAN');
+    $pdf->SetCreator('SIGESMANCOR');
     $pdf->SetAuthor($autor);
     $pdf->SetTitle('Informe de Historial de Mantenimiento - ' . $mantenimiento['codigo_item']);
-    $pdf->SetSubject('Informe generado desde SIGESMAN');
-    $pdf->SetKeywords('mantenimiento, historial, informe, SIGESMAN');
+    $pdf->SetSubject('Informe generado desde SIGESMANCOR');
+    $pdf->SetKeywords('mantenimiento, historial, informe, SIGESMANCOR');
 
     // Configurar márgenes más compactos
     $pdf->SetMargins(12, 12, 12);

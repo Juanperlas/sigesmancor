@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS sigesmancor;
-USE sigesmancor;
+-- CREATE DATABASE IF NOT EXISTS appsalud_db_sigesmancor;
+USE appsalud_db_sigesmancor;
 
 -- Crear tabla para registrar la fecha y hora de las actualizaciones de fechas
 CREATE TABLE IF NOT EXISTS log_actualizaciones_fechas (
