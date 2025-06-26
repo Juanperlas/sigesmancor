@@ -1,4 +1,4 @@
--- CREATE DATABASE IF NOT EXISTS appsalud_db_sigesmancor;
+CREATE DATABASE IF NOT EXISTS appsalud_db_sigesmancor;
 USE appsalud_db_sigesmancor;
 
 -- Crear tabla para registrar la fecha y hora de las actualizaciones de fechas
@@ -320,38 +320,6 @@ CREATE TABLE historial_trabajo_componentes (
     UNIQUE (componente_id, fecha),
     INDEX idx_componente_fecha (componente_id, fecha)
 );
-
--- Stored Procedure for Automatic Daily Entries (Run at midnight)
-DELIMITER //
-CREATE PROCEDURE insert_automatic_work_hours()
-BEGIN
-    -- Insert automatic entries for equipos without manual entries for the current day
-    INSERT INTO historial_trabajo_equipos (equipo_id, fecha, horas_trabajadas, fuente, observaciones)
-    SELECT 
-        e.id,
-        CURDATE(),
-        12.00,
-        'automatico',
-        'Entrada automática por sistema'
-    FROM equipos e
-    LEFT JOIN historial_trabajo_equipos hte 
-        ON e.id = hte.equipo_id AND hte.fecha = CURDATE()
-    WHERE hte.id IS NULL AND e.estado = 'activo';
-
-    -- Insert automatic entries for componentes without manual entries for the current day
-    INSERT INTO historial_trabajo_componentes (componente_id, fecha, horas_trabajadas, fuente, observaciones)
-    SELECT 
-        c.id,
-        CURDATE(),
-        12.00,
-        'automatico',
-        'Entrada automática por sistema'
-    FROM componentes c
-    LEFT JOIN historial_trabajo_componentes htc 
-        ON c.id = htc.componente_id AND htc.fecha = CURDATE()
-    WHERE htc.id IS NULL AND c.estado = 'activo';
-END //
-DELIMITER ;
 
 -- =====================================================
 -- INSERCIÓN DE DATOS INICIALES

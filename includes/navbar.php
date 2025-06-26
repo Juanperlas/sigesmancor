@@ -26,9 +26,11 @@ $is_preventivo = strpos($pagina_ruta, 'modulos/mantenimiento/preventivo') !== fa
 $is_correctivo = strpos($pagina_ruta, 'modulos/mantenimiento/correctivo') !== false;
 $is_programado = strpos($pagina_ruta, 'modulos/mantenimiento/programado') !== false;
 $is_historial = strpos($pagina_ruta, 'modulos/mantenimiento/historial') !== false;
+$is_estadistica = strpos($pagina_ruta, 'modulos/estadistica/historial') !== false;
 $is_usuarios = strpos($pagina_ruta, 'modulos/administracion/usuarios') !== false;
 $is_personal = strpos($pagina_ruta, 'modulos/administracion/personal') !== false;
 $is_categorias = strpos($pagina_ruta, 'modulos/administracion/categorias') !== false;
+$is_horarios = strpos($pagina_ruta, 'modulos/administracion/horarios') !== false;
 $is_roles = strpos($pagina_ruta, 'modulos/administracion/roles') !== false;
 
 
@@ -128,8 +130,20 @@ $usuario = getUsuarioActual();
                     </li>
                     <li class="sidebar-menu-item <?php echo $is_categorias ? 'active' : ''; ?>">
                         <a href="<?php echo getPageUrl('modulos/administracion/categorias/index.php'); ?>" class="sidebar-menu-link">
-                            <i class="bi bi-person-badge"></i>
+                            <i class="bi bi-tags"></i>
                             <span>Categorías</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item <?php echo $is_horarios ? 'active' : ''; ?>">
+                        <a href="<?php echo getPageUrl('modulos/administracion/horarios/index.php'); ?>" class="sidebar-menu-link">
+                            <i class="bi bi-clock"></i>
+                            <span>Horarios</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item <?php echo $is_estadistica ? 'active' : ''; ?>">
+                        <a href="<?php echo getPageUrl('modulos/mantenimiento/estadistica/index.php'); ?>" class="sidebar-menu-link">
+                            <i class="bi bi-bar-chart-line"></i>
+                            <span>Estadística</span>
                         </a>
                     </li>
                     <li class="sidebar-menu-item <?php echo $is_roles ? 'active' : ''; ?>">

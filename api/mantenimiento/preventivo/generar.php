@@ -133,16 +133,19 @@ function actualizarFechasMantenimiento($conexion) {
             
             if ($equipo && $equipo["limite"] > 0) {
                 $orometroActual = floatval($equipo["orometro_actual"]);
-                $proximoOrometro = floatval($mantenimiento["orometro_programado"]);
+                $proximoOrometro = floatval($equipo["proximo_orometro"]); // USAR EL QUE YA ESTÁ EN EQUIPOS
                 $limiteDiario = floatval($equipo["limite"]);
                 
                 // Calcular nueva fecha programada
                 $nuevaFecha = calcularFechaProgramada($orometroActual, $proximoOrometro, $limiteDiario);
                 
-                // Actualizar fecha en la base de datos
+                // CORREGIDO: Solo actualizar fecha, usar el proximo_orometro que ya está en equipos
                 $conexion->update(
                     "mantenimiento_preventivo",
-                    ["fecha_programada" => $nuevaFecha],
+                    [
+                        "fecha_programada" => $nuevaFecha,
+                        "orometro_programado" => $proximoOrometro // Usar el de equipos
+                    ],
                     "id = ?",
                     [$mantenimiento["id"]]
                 );
@@ -155,16 +158,19 @@ function actualizarFechasMantenimiento($conexion) {
             
             if ($componente && $componente["limite"] > 0) {
                 $orometroActual = floatval($componente["orometro_actual"]);
-                $proximoOrometro = floatval($mantenimiento["orometro_programado"]);
+                $proximoOrometro = floatval($componente["proximo_orometro"]); // USAR EL QUE YA ESTÁ EN COMPONENTES
                 $limiteDiario = floatval($componente["limite"]);
                 
                 // Calcular nueva fecha programada
                 $nuevaFecha = calcularFechaProgramada($orometroActual, $proximoOrometro, $limiteDiario);
                 
-                // Actualizar fecha en la base de datos
+                // CORREGIDO: Solo actualizar fecha, usar el proximo_orometro que ya está en componentes
                 $conexion->update(
                     "mantenimiento_preventivo",
-                    ["fecha_programada" => $nuevaFecha],
+                    [
+                        "fecha_programada" => $nuevaFecha,
+                        "orometro_programado" => $proximoOrometro // Usar el de componentes
+                    ],
                     "id = ?",
                     [$mantenimiento["id"]]
                 );
@@ -207,32 +213,28 @@ function verificarYGenerarMantenimientoEquipos($conexion, $generarRegistros = fa
         // Si no existe mantenimiento pendiente, contar o generar
         if ($resultado["total"] == 0) {
             if ($generarRegistros) {
-                // Calcular próximo orómetro
-                $proximoOrometro = $equipo["orometro_actual"] + $equipo["mantenimiento"];
+                // CORREGIDO: Usar los valores que YA ESTÁN en la tabla equipos
+                $orometroActual = floatval($equipo["orometro_actual"]);
+                $proximoOrometro = floatval($equipo["proximo_orometro"]); // NO CALCULAR, USAR EL QUE YA ESTÁ
+                $limiteDiario = floatval($equipo["limite"]);
+                
                 $descripcion = "Mantenimiento preventivo programado para el equipo {$equipo["nombre"]} (Código: {$equipo["codigo"]})";
 
-                // Calcular fecha programada basada en el límite diario y la diferencia de orómetros
-                $fechaProgramada = calcularFechaProgramada($equipo["orometro_actual"], $proximoOrometro, $equipo["limite"]);
+                // Calcular fecha programada basada en los valores actuales
+                $fechaProgramada = calcularFechaProgramada($orometroActual, $proximoOrometro, $limiteDiario);
 
                 $datos = [
                     "equipo_id" => $equipo["id"],
                     "descripcion_razon" => $descripcion,
                     "fecha_programada" => $fechaProgramada,
-                    "orometro_programado" => $proximoOrometro
+                    "orometro_programado" => $proximoOrometro // USAR EL QUE YA ESTÁ EN EQUIPOS
                 ];
 
                 $id = $conexion->insert("mantenimiento_preventivo", $datos);
 
                 if ($id) {
                     $contador++;
-
-                    // Actualizar próximo orómetro del equipo
-                    $conexion->update(
-                        "equipos",
-                        ["proximo_orometro" => $proximoOrometro],
-                        "id = ?",
-                        [$equipo["id"]]
-                    );
+                    // NO MODIFICAR NADA EN LA TABLA EQUIPOS
                 }
             } else {
                 // Solo contar
@@ -270,32 +272,28 @@ function verificarYGenerarMantenimientoComponentes($conexion, $generarRegistros 
         // Si no existe mantenimiento pendiente, contar o generar
         if ($resultado["total"] == 0) {
             if ($generarRegistros) {
-                // Calcular próximo orómetro
-                $proximoOrometro = $componente["orometro_actual"] + $componente["mantenimiento"];
+                // CORREGIDO: Usar los valores que YA ESTÁN en la tabla componentes
+                $orometroActual = floatval($componente["orometro_actual"]);
+                $proximoOrometro = floatval($componente["proximo_orometro"]); // NO CALCULAR, USAR EL QUE YA ESTÁ
+                $limiteDiario = floatval($componente["limite"]);
+                
                 $descripcion = "Mantenimiento preventivo programado para el componente {$componente["nombre"]} (Código: {$componente["codigo"]})";
 
-                // Calcular fecha programada basada en el límite diario y la diferencia de orómetros
-                $fechaProgramada = calcularFechaProgramada($componente["orometro_actual"], $proximoOrometro, $componente["limite"]);
+                // Calcular fecha programada basada en los valores actuales
+                $fechaProgramada = calcularFechaProgramada($orometroActual, $proximoOrometro, $limiteDiario);
 
                 $datos = [
                     "componente_id" => $componente["id"],
                     "descripcion_razon" => $descripcion,
                     "fecha_programada" => $fechaProgramada,
-                    "orometro_programado" => $proximoOrometro
+                    "orometro_programado" => $proximoOrometro // USAR EL QUE YA ESTÁ EN COMPONENTES
                 ];
 
                 $id = $conexion->insert("mantenimiento_preventivo", $datos);
 
                 if ($id) {
                     $contador++;
-
-                    // Actualizar próximo orómetro del componente
-                    $conexion->update(
-                        "componentes",
-                        ["proximo_orometro" => $proximoOrometro],
-                        "id = ?",
-                        [$componente["id"]]
-                    );
+                    // NO MODIFICAR NADA EN LA TABLA COMPONENTES
                 }
             } else {
                 // Solo contar
@@ -309,26 +307,29 @@ function verificarYGenerarMantenimientoComponentes($conexion, $generarRegistros 
 
 /**
  * Calcula la fecha programada para el mantenimiento basada en el límite diario
+ * CORREGIDO: Lógica correcta según explicación del usuario
  * @param float $orometroActual Orómetro actual
- * @param float $proximoOrometro Próximo orómetro
- * @param float $limiteDiario Límite diario (trabajo por día)
+ * @param float $proximoOrometro Próximo orómetro (cuando se debe hacer mantenimiento)
+ * @param float $limiteDiario Límite diario (horas que trabaja por día)
  * @return string Fecha programada en formato Y-m-d H:i:s
  */
 function calcularFechaProgramada($orometroActual, $proximoOrometro, $limiteDiario)
 {
     // Si no hay límite diario definido, usar un valor por defecto
     if (empty($limiteDiario) || $limiteDiario <= 0) {
-        $limiteDiario = 8; // 8 horas o 8 km por día por defecto
+        $limiteDiario = 8; // 8 horas por día por defecto
     }
 
-    // Calcular la diferencia de orómetros
-    $diferenciaOrometros = $proximoOrometro - $orometroActual;
+    // Calcular cuántas horas faltan para llegar al próximo orómetro
+    $horasFaltantes = $proximoOrometro - $orometroActual;
+
+    // Si ya se pasó el próximo orómetro (valor negativo), programar para hoy
+    if ($horasFaltantes <= 0) {
+        return date("Y-m-d H:i:s"); // Hoy mismo
+    }
 
     // Calcular días necesarios (redondeando hacia arriba)
-    $diasNecesarios = ceil($diferenciaOrometros / $limiteDiario);
-
-    // Si son menos de 1 día, establecer mínimo 1 día
-    $diasNecesarios = max(1, $diasNecesarios);
+    $diasNecesarios = ceil($horasFaltantes / $limiteDiario);
 
     // Calcular fecha programada
     return date("Y-m-d H:i:s", strtotime("+{$diasNecesarios} days"));

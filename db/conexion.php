@@ -1,10 +1,10 @@
 <?php
 class Conexion
 {
-    private $host = 'sql207.infinityfree.com';
-    private $db = 'if0_38802651_sigesmancor';
-    private $user = 'if0_38802651';
-    private $pass = 'juanarroyo123';
+    private $host = 'localhost';
+    private $db = 'appsalud_db_sigesmancor';
+    private $user = 'root';
+    private $pass = '';
     private $charset = 'utf8mb4';
     private $conn;
 

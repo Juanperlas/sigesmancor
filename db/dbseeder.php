@@ -1,10 +1,10 @@
 <?php
 
 // Configuración de la conexión a la base de datos
-$host = 'sql207.infinityfree.com';
-$dbname = 'if0_38802651_sigesmancor';
-$username = 'if0_38802651';
-$password = 'juanarroyo123';
+$host = 'localhost';
+$dbname = 'appsalud_db_sigesmancor';
+$username = 'root';
+$password = '';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
@@ -57,7 +57,7 @@ foreach ($tablas as $tabla) {
 // Reactivar restricciones de claves foráneas
 ejecutarConsulta($pdo, "SET FOREIGN_KEY_CHECKS = 1");
 
-// 1. Poblar tabla modulos
+// 1. Poblar tabla modulos (CORREGIDA - HISTORIAL Y ESTADÍSTICA INDEPENDIENTES)
 echo "Poblando modulos...\n";
 $modulos = [
     ['dashboard', 'Panel principal del sistema', 1],
@@ -67,11 +67,15 @@ $modulos = [
     ['mantenimientos.preventivo', 'Submódulo de mantenimiento preventivo', 1],
     ['mantenimientos.correctivo', 'Submódulo de mantenimiento correctivo', 1],
     ['mantenimientos.programado', 'Submódulo de mantenimiento programado (predictivo)', 1],
+    ['historial', 'Módulo de historial de mantenimientos', 1], // INDEPENDIENTE
+    ['estadisticas', 'Módulo de estadísticas y reportes', 1], // INDEPENDIENTE
+    ['estadisticas.graficas', 'Submódulo de gráficas y visualización de datos', 1],
     ['administracion', 'Gestión administrativa', 1],
     ['administracion.usuarios', 'Submódulo de usuarios', 1],
     ['administracion.personal', 'Submódulo de personal', 1],
     ['administracion.roles_permisos', 'Submódulo de roles y permisos', 1],
     ['administracion.categorias', 'Submódulo de categorías de equipos', 1],
+    ['administracion.horarios', 'Submódulo de administración de horarios de equipos y componentes', 1],
 ];
 
 $modulo_ids = [];
@@ -80,7 +84,7 @@ foreach ($modulos as $modulo) {
     $modulo_ids[$modulo[0]] = ultimoId($pdo);
 }
 
-// 2. Poblar tabla permisos
+// 2. Poblar tabla permisos (CORREGIDA - HISTORIAL Y ESTADÍSTICA INDEPENDIENTES)
 echo "Poblando permisos...\n";
 $permisos = [
     // Dashboard
@@ -116,6 +120,18 @@ $permisos = [
     [$modulo_ids['mantenimientos.programado'], 'mantenimientos.programado.ver', 'Permite ver mantenimientos programados'],
     [$modulo_ids['mantenimientos.programado'], 'mantenimientos.programado.crear', 'Permite crear mantenimientos programados'],
     [$modulo_ids['mantenimientos.programado'], 'mantenimientos.programado.editar', 'Permite editar mantenimientos programados'],
+    // Historial - MÓDULO INDEPENDIENTE
+    [$modulo_ids['historial'], 'historial.acceder', 'Permite acceder al módulo de historial'],
+    [$modulo_ids['historial'], 'historial.ver', 'Permite ver el historial de mantenimientos'],
+    [$modulo_ids['historial'], 'historial.exportar', 'Permite exportar historial de mantenimientos'],
+    // Estadísticas - MÓDULO INDEPENDIENTE
+    [$modulo_ids['estadisticas'], 'estadisticas.acceder', 'Permite acceder al módulo de estadísticas'],
+    [$modulo_ids['estadisticas'], 'estadisticas.ver', 'Permite ver el panel de estadísticas'],
+    [$modulo_ids['estadisticas'], 'estadisticas.exportar', 'Permite exportar estadísticas y reportes'],
+    // Estadísticas Gráficas - SUBMÓDULO DE ESTADÍSTICAS
+    [$modulo_ids['estadisticas.graficas'], 'estadisticas.graficas.acceder', 'Permite acceder al submódulo de gráficas'],
+    [$modulo_ids['estadisticas.graficas'], 'estadisticas.graficas.ver', 'Permite ver gráficas y visualizaciones'],
+    [$modulo_ids['estadisticas.graficas'], 'estadisticas.graficas.exportar', 'Permite exportar gráficas y reportes'],
     // Administracion
     [$modulo_ids['administracion'], 'administracion.acceder', 'Permite acceder al módulo de administración'],
     [$modulo_ids['administracion'], 'administracion.ver', 'Permite ver el panel de administración'],
@@ -125,7 +141,7 @@ $permisos = [
     [$modulo_ids['administracion.usuarios'], 'administracion.usuarios.crear', 'Permite crear nuevos usuarios'],
     [$modulo_ids['administracion.usuarios'], 'administracion.usuarios.editar', 'Permite editar usuarios existentes'],
     // Administracion Personal
-    [$modulo_ids['administracion.personal'], 'administracion.personal.acceder', 'Permite acceder al submദsubmódulo de personal'],
+    [$modulo_ids['administracion.personal'], 'administracion.personal.acceder', 'Permite acceder al submódulo de personal'],
     [$modulo_ids['administracion.personal'], 'administracion.personal.ver', 'Permite ver la lista de personal'],
     [$modulo_ids['administracion.personal'], 'administracion.personal.crear', 'Permite crear nuevo personal'],
     [$modulo_ids['administracion.personal'], 'administracion.personal.editar', 'Permite editar personal existente'],
@@ -140,6 +156,10 @@ $permisos = [
     [$modulo_ids['administracion.categorias'], 'administracion.categorias.crear', 'Permite crear nuevas categorías'],
     [$modulo_ids['administracion.categorias'], 'administracion.categorias.editar', 'Permite editar categorías existentes'],
     [$modulo_ids['administracion.categorias'], 'administracion.categorias.eliminar', 'Permite eliminar categorías existentes'],
+    // Administracion Horarios
+    [$modulo_ids['administracion.horarios'], 'administracion.horarios.acceder', 'Permite acceder al submódulo de horarios'],
+    [$modulo_ids['administracion.horarios'], 'administracion.horarios.ver', 'Permite ver el panel de horarios'],
+    [$modulo_ids['administracion.horarios'], 'administracion.horarios.editar', 'Permite editar horarios predefinidos y manuales'],
 ];
 
 $permiso_ids = [];
@@ -163,7 +183,7 @@ foreach ($roles as $rol) {
     $rol_ids[$rol[0]] = ultimoId($pdo);
 }
 
-// 4. Poblar tabla roles_permisos
+// 4. Poblar tabla roles_permisos (CORREGIDA - HISTORIAL Y ESTADÍSTICA INDEPENDIENTES)
 echo "Poblando roles_permisos...\n";
 
 // Superadmin: Todos los permisos
@@ -176,7 +196,7 @@ foreach (array_keys($permiso_ids) as $permiso_nombre) {
     ejecutarConsulta($pdo, "INSERT INTO roles_permisos (rol_id, permiso_id) VALUES (?, ?)", [$rol_ids['admin'], $permiso_ids[$permiso_nombre]]);
 }
 
-// Jefe: Permisos para equipos, componentes, mantenimientos y solo ver categorías
+// Jefe: Permisos operativos (equipos, componentes, mantenimientos, historial, estadísticas, ver categorías y horarios)
 $permisos_jefe = [
     'dashboard.acceder',
     'dashboard.ver',
@@ -204,15 +224,26 @@ $permisos_jefe = [
     'mantenimientos.programado.ver',
     'mantenimientos.programado.crear',
     'mantenimientos.programado.editar',
+    'historial.acceder', // MÓDULO INDEPENDIENTE
+    'historial.ver',
+    'historial.exportar',
+    'estadisticas.acceder', // MÓDULO INDEPENDIENTE
+    'estadisticas.ver',
+    'estadisticas.exportar',
+    'estadisticas.graficas.acceder',
+    'estadisticas.graficas.ver',
+    'estadisticas.graficas.exportar',
     'administracion.categorias.acceder',
-    'administracion.categorias.ver'
+    'administracion.categorias.ver',
+    'administracion.horarios.acceder',
+    'administracion.horarios.ver'
 ];
 
 foreach ($permisos_jefe as $permiso_nombre) {
     ejecutarConsulta($pdo, "INSERT INTO roles_permisos (rol_id, permiso_id) VALUES (?, ?)", [$rol_ids['jefe'], $permiso_ids[$permiso_nombre]]);
 }
 
-// Invitado: Solo visualización
+// Invitado: Solo visualización (incluyendo historial y estadísticas)
 $permisos_invitado = [
     'dashboard.acceder',
     'dashboard.ver',
@@ -228,8 +259,16 @@ $permisos_invitado = [
     'mantenimientos.correctivo.ver',
     'mantenimientos.programado.acceder',
     'mantenimientos.programado.ver',
+    'historial.acceder', // MÓDULO INDEPENDIENTE
+    'historial.ver',
+    'estadisticas.acceder', // MÓDULO INDEPENDIENTE
+    'estadisticas.ver',
+    'estadisticas.graficas.acceder',
+    'estadisticas.graficas.ver',
     'administracion.categorias.acceder',
-    'administracion.categorias.ver'
+    'administracion.categorias.ver',
+    'administracion.horarios.acceder',
+    'administracion.horarios.ver'
 ];
 
 foreach ($permisos_invitado as $permiso_nombre) {
@@ -312,7 +351,7 @@ $preferencias = [
         '#f1c40f',
         '#e74c3c',
         '#ffffff',
-        'mantenimientos',
+        'historial', // Página de inicio cambiada a historial
         10
     ],
     // Invitado1: Tema claro, diseño default, colores suaves
@@ -326,7 +365,7 @@ $preferencias = [
         '#ffffff',
         '#3498db',
         '#ffffff',
-        'dashboard',
+        'estadisticas', // Página de inicio cambiada a estadísticas
         100
     ]
 ];
@@ -349,4 +388,4 @@ echo "✅ Permisos creados: " . count($permisos) . "\n";
 echo "✅ Roles creados: " . count($roles) . "\n";
 echo "✅ Usuarios creados: " . count($usuario_ids) . "\n";
 echo "✅ Preferencias de usuarios creadas: " . count($preferencias) . "\n";
-echo "\n🎉 Base de datos lista para usar!\n";
+echo "\n🎉 Base de datos corregida y lista para usar!\n";

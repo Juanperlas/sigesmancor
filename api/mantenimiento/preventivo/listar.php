@@ -140,6 +140,10 @@ try {
                 ELSE c.codigo
             END as codigo_item,
             CASE 
+                WHEN mp.equipo_id IS NOT NULL THEN e.nombre
+                ELSE c.nombre
+            END as nombre_item,
+            CASE 
                 WHEN mp.equipo_id IS NOT NULL THEN e.orometro_actual
                 ELSE c.orometro_actual
             END as orometro_actual_valor,
@@ -261,19 +265,11 @@ try {
         $orometroActualFormateado = number_format($orometroActual, 2) . " " . $unidad;
         $proximoOrometroFormateado = number_format($proximoOrometro, 2) . " " . $unidad;
 
-        /* Preparar imagen
-        $imagenUrl = "";
-        if ($row["estado"] === "completado" && !empty($row["imagen"])) {
-            $imagenUrl = getAssetUrl($row["imagen"]);
-        } elseif (!empty($row["item_imagen"])) {
-            $imagenUrl = getAssetUrl($row["item_imagen"]);
-        } else {
-            $imagenUrl = getAssetUrl(
-                $row["tipo_item"] === "equipo"
-                    ? "assets/img/equipos/equipos/default.png"
-                    : "assets/img/equipos/componentes/default.png"
-            );
-        }*/
+        // CORREGIDO: Mostrar código y nombre juntos
+        $codigoNombre = $row["codigo_item"];
+        if (!empty($row["nombre_item"])) {
+            $codigoNombre .= " (" . $row["nombre_item"] . ") ";
+        }
 
         $imagenUrl = "";
         if (!empty($row["item_imagen"])) {
@@ -292,7 +288,8 @@ try {
             "equipo_id" => $row["equipo_id"],
             "componente_id" => $row["componente_id"],
             "tipo_item" => $row["tipo_item"],
-            "codigo_item" => $row["codigo_item"],
+            "codigo_item" => $codigoNombre, // CORREGIDO: Ahora incluye código y nombre
+            "nombre_item" => $row["nombre_item"], // Agregado para referencia
             "descripcion" => $row["descripcion"],
             "fecha_programada" => $row["fecha_programada"],
             "fecha_formateada" => $fechaFormateada,
