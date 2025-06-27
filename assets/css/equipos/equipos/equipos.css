@@ -266,21 +266,22 @@
 /* Alinear a la izquierda solo la columna de nombre */
 #equipos-table td:nth-child(3) {
   text-align: left;
+  font-weight: 600;
 }
 
 /* Estilo para la columna de orómetro anterior */
-#equipos-table td:nth-child(5) {
+#equipos-table td:nth-child(6) {
   color: var(--color-primary);
   font-weight: 700;
 }
 
 /* Estilo para la columna de orómetro actual */
-#equipos-table td:nth-child(6) .orometro-valor {
+#equipos-table td:nth-child(7) .orometro-valor {
   font-weight: 700;
 }
 
 /* Estilo para la columna de próximo orómetro */
-#equipos-table td:nth-child(7) .orometro-valor {
+#equipos-table td:nth-child(8) .orometro-valor {
   color: var(--color-danger);
   font-weight: 700;
 }

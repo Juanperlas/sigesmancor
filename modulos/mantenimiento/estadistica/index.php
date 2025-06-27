@@ -84,57 +84,56 @@ include_once '../../../includes/topbar.php';
                     </div>
                 </div>
                 <div class="card-body">
-                    <!-- Filtros para historial -->
-                    <div class="filtros-historial mb-3">
-                        <div class="row g-2">
-                            <div class="col-md-3">
-                                <label class="form-label-sm">Fecha Desde</label>
-                                <input type="date" class="form-control form-control-sm" id="fecha-desde-historial">
+                    <!-- Filtros con diseño de componentes -->
+                    <div class="filtros-container">
+                        <div class="filtros-header">Filtros</div>
+                        <div class="filtros-content">
+                            <div class="filtro-grupo">
+                                <label for="fecha-desde-historial" class="filtro-label">Fecha Desde</label>
+                                <input type="date" class="filtro-select" id="fecha-desde-historial">
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label-sm">Fecha Hasta</label>
-                                <input type="date" class="form-control form-control-sm" id="fecha-hasta-historial">
+                            <div class="filtro-grupo">
+                                <label for="fecha-hasta-historial" class="filtro-label">Fecha Hasta</label>
+                                <input type="date" class="filtro-select" id="fecha-hasta-historial">
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label-sm">Tipo</label>
-                                <select class="form-select form-select-sm" id="tipo-historial">
+                            <div class="filtro-grupo">
+                                <label for="tipo-historial" class="filtro-label">Tipo</label>
+                                <select class="filtro-select" id="tipo-historial">
                                     <option value="">Todos</option>
                                     <option value="equipo">Equipos</option>
                                     <option value="componente">Componentes</option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label-sm">Fuente</label>
-                                <select class="form-select form-select-sm" id="fuente-historial">
+                            <div class="filtro-grupo">
+                                <label for="fuente-historial" class="filtro-label">Fuente</label>
+                                <select class="filtro-select" id="fuente-historial">
                                     <option value="">Todas</option>
                                     <option value="manual">Manual</option>
                                     <option value="automatico">Automático</option>
                                 </select>
                             </div>
-                        </div>
-                        <div class="row mt-2">
-                            <div class="col-12">
-                                <button class="btn btn-sm btn-primary" id="btn-aplicar-filtros-historial">
-                                    <i class="bi bi-funnel me-1"></i>Aplicar Filtros
+                            <div class="filtros-actions">
+                                <button id="btn-aplicar-filtros-historial" class="btn-aplicar">
+                                    <i class="bi bi-funnel"></i> Aplicar
                                 </button>
-                                <button class="btn btn-sm btn-outline-secondary" id="btn-limpiar-filtros-historial">
-                                    <i class="bi bi-x-circle me-1"></i>Limpiar
+                                <button id="btn-limpiar-filtros-historial" class="btn-limpiar">
+                                    <i class="bi bi-x"></i> Limpiar
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Tabla de historial -->
-                    <div class="table-responsive">
-                        <table id="tabla-historial" class="table table-sm table-striped table-hover">
-                            <thead class="table-primary">
+                    <!-- Tabla de historial con diseño de componentes -->
+                    <div class="table-container">
+                        <table id="tabla-historial" class="table table-sm table-hover">
+                            <thead>
                                 <tr>
-                                    <th>Fecha</th>
+                                    <th width="100">Fecha</th>
                                     <th>Equipo/Componente</th>
-                                    <th>Código</th>
-                                    <th>Tipo</th>
-                                    <th>Horas Trabajadas</th>
-                                    <th>Fuente</th>
+                                    <th width="100">Código</th>
+                                    <th width="100">Tipo</th>
+                                    <th width="120">Horas Trabajadas</th>
+                                    <th width="100">Fuente</th>
                                     <th>Observaciones</th>
                                 </tr>
                             </thead>

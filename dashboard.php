@@ -1,256 +1,232 @@
+```php
 <?php
-// Iniciar sesión
-session_start();
-
-// Incluir funciones
+// Incluir archivos necesarios
 require_once 'db/funciones.php';
+require_once 'db/conexion.php';
 
 // Verificar autenticación
-verificarAutenticacion();
+if (!estaAutenticado()) {
+    header("Location: login.php");
+    exit;
+}
 
-// Obtener datos del usuario
-$usuario = getUsuarioActual();
+// Verificar permiso
+if (!tienePermiso('dashboard.ver')) {
+    header("Location: login.php?error=no_autorizado");
+    exit;
+}
 
-// Definir título de la página
-$titulo = "Dashboard | SIGESMANCOR";
+// Título de la página
+$titulo = "Dashboard - Panel de Control";
 
-// Definir la URL base para los assets
-$baseUrl = getProjectRoot();
-
-// Incluir CSS adicional para el dashboard
+// Definir CSS y JS adicionales para este módulo
 $css_adicional = [
     'assets/css/dashboard.css',
+    'assets/vendor/bootstrap-icons/bootstrap-icons.css'
 ];
 
-// Incluir JS adicional para el dashboard
 $js_adicional = [
+    'assets/js/jquery-3.7.1.min.js',
+    'assets/vendor/chartjs/chart.min.js',
     'assets/js/vendor/apexcharts/apexcharts.min.js',
-    'assets/js/vendor/fullcalendar/index.global.min.js',
     'assets/js/dashboard.js'
 ];
 
-// Obtener estadísticas para el dashboard
-$estadisticas = obtenerEstadisticasDashboard();
-
-// Obtener categorías de equipos para los filtros
-$conexion = new Conexion();
-$categorias = $conexion->select("SELECT id, nombre FROM categorias_equipos ORDER BY nombre");
-
-// Si no hay categorías, crear un array vacío para evitar errores
-if (!$categorias) {
-    $categorias = [];
-}
-
-// Incluir header
+// Incluir el header
+$baseUrl = '';
 include_once 'includes/header.php';
-
-// Incluir navbar
 include_once 'includes/navbar.php';
-
-// Incluir topbar
 include_once 'includes/topbar.php';
 ?>
 
-<!-- Contenido principal -->
-<div class="main-content" id="main-content">
-    <div class="dashboard-container">
-        <!-- Encabezado del Dashboard -->
-        <div class="dashboard-header">
-            <div>
-                <h1 class="dashboard-title">Dashboard</h1>
-                <p class="dashboard-subtitle">Bienvenido al Sistema de Gestión de Mantenimiento</p>
+<div id="main-content" class="main-content dashboard-container">
+    <!-- Header del Dashboard -->
+    <div class="dashboard-header">
+        <div class="dashboard-title-section">
+            <h1 class="dashboard-title">
+                <i class="bi bi-speedometer2"></i>
+                Panel de Control - SIGESMANCOR
+            </h1>
+            <p class="dashboard-subtitle">Sistema de Gestión de Mantenimiento CORDIAL SAC</p>
+        </div>
+        <div class="dashboard-actions">
+            <button type="button" class="btn-dashboard-action" id="btn-exportar-resumen">
+                <i class="bi bi-download"></i>
+                Exportar Resumen
+            </button>
+            <button type="button" class="btn-dashboard-action" id="btn-actualizar-datos">
+                <i class="bi bi-arrow-clockwise"></i>
+                Actualizar
+            </button>
+        </div>
+    </div>
+
+    <!-- Tarjetas de Estadísticas Principales -->
+    <div class="stats-grid">
+        <div class="stat-card stat-primary">
+            <div class="stat-icon">
+                <i class="bi bi-gear-fill"></i>
             </div>
-            <div class="dashboard-actions">
-                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Actualizar datos" id="refreshDashboard">
-                    <i class="bi bi-arrow-clockwise"></i>
-                </button>
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dashboardOptionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-gear-fill me-1"></i> Opciones
+            <div class="stat-content">
+                <div class="stat-number" id="total-equipos">0</div>
+                <div class="stat-label">Total Equipos</div>
+                <div class="stat-change positive" id="equipos-change">+0 este mes</div>
+            </div>
+        </div>
+
+        <div class="stat-card stat-success">
+            <div class="stat-icon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number" id="equipos-activos">0</div>
+                <div class="stat-label">Equipos Activos</div>
+                <div class="stat-change positive" id="activos-percentage">0%</div>
+            </div>
+        </div>
+
+        <div class="stat-card stat-warning">
+            <div class="stat-icon">
+                <i class="bi bi-tools"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number" id="mantenimientos-pendientes">0</div>
+                <div class="stat-label">Mantenimientos Pendientes</div>
+                <div class="stat-change neutral" id="pendientes-change">Programados</div>
+            </div>
+        </div>
+
+        <div class="stat-card stat-danger">
+            <div class="stat-icon">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number" id="equipos-criticos">0</div>
+                <div class="stat-label">Equipos Críticos</div>
+                <div class="stat-change negative" id="criticos-change">Requieren atención</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Gráficas y Análisis -->
+    <div class="dashboard-grid">
+        <!-- Gráfica de Estado de Equipos -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-pie-chart-fill"></i>
+                    Estado de Equipos
+                </h3>
+                <div class="card-actions">
+                    <button class="btn-card-action" id="btn-export-equipos">
+                        <i class="bi bi-download"></i>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dashboardOptionsDropdown">
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-download me-2"></i> Exportar datos</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-printer me-2"></i> Imprimir dashboard</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-sliders me-2"></i> Configurar widgets</a></li>
-                    </ul>
                 </div>
+            </div>
+            <div class="card-content">
+                <canvas id="chart-estado-equipos"></canvas>
             </div>
         </div>
 
-        <!-- Tarjetas de estadísticas -->
-        <div class="stats-container">
-            <!-- Total de Equipos -->
-            <div class="stat-card">
-                <div class="icon bg-primary-gradient">
-                    <i class="bi bi-truck"></i>
-                </div>
-                <h6 class="label">Total Equipos</h6>
-                <h2 class="value counter-value" data-target="<?php echo $estadisticas['totalEquipos']; ?>">0</h2>
-                <div class="trend up">
-                    <i class="bi bi-arrow-up"></i>
-                    <span>5% desde el mes pasado</span>
-                </div>
-            </div>
-
-            <!-- Equipos Activos -->
-            <div class="stat-card">
-                <div class="icon bg-success-gradient">
-                    <i class="bi bi-check-circle"></i>
-                </div>
-                <h6 class="label">Equipos Activos</h6>
-                <h2 class="value counter-value" data-target="<?php echo $estadisticas['equiposActivos']; ?>">0</h2>
-                <div class="trend up">
-                    <i class="bi bi-arrow-up"></i>
-                    <span>3% desde el mes pasado</span>
+        <!-- Gráfica de Mantenimientos por Mes -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-bar-chart-fill"></i>
+                    Mantenimientos por Mes
+                </h3>
+                <div class="card-actions">
+                    <button class="btn-card-action" id="btn-export-mantenimientos">
+                        <i class="bi bi-download"></i>
+                    </button>
                 </div>
             </div>
-
-            <!-- Equipos Averiados -->
-            <div class="stat-card">
-                <div class="icon bg-danger-gradient">
-                    <i class="bi bi-exclamation-triangle"></i>
-                </div>
-                <h6 class="label">Equipos Averiados</h6>
-                <h2 class="value counter-value" data-target="<?php echo $estadisticas['equiposAveriados']; ?>">0</h2>
-                <div class="trend down">
-                    <i class="bi bi-arrow-down"></i>
-                    <span>2% desde el mes pasado</span>
-                </div>
-            </div>
-
-            <!-- Mantenimientos Programados -->
-            <div class="stat-card">
-                <div class="icon bg-warning-gradient">
-                    <i class="bi bi-calendar-check"></i>
-                </div>
-                <h6 class="label">Mantenimientos</h6>
-                <h2 class="value counter-value" data-target="<?php echo $estadisticas['mantenimientosProgramados']; ?>">0</h2>
-                <div class="trend up">
-                    <i class="bi bi-arrow-up"></i>
-                    <span>8% desde el mes pasado</span>
-                </div>
+            <div class="card-content">
+                <canvas id="chart-mantenimientos-mes"></canvas>
             </div>
         </div>
 
-        <!-- Gráficos principales -->
-        <div class="chart-container">
-            <!-- Gráfico de historial de mantenimiento -->
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h5 class="chart-title">Historial de Mantenimiento</h5>
-                    <div class="chart-actions">
-                        <div class="dropdown filter-dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="historyFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-funnel me-1"></i> Filtrar
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="historyFilterDropdown">
-                                <li><a class="dropdown-item active" href="#" data-categoria="todos">Todos los equipos</a></li>
-                                <?php foreach ($categorias as $categoria): ?>
-                                    <li><a class="dropdown-item" href="#" data-categoria="<?php echo $categoria['id']; ?>"><?php echo $categoria['nombre']; ?></a></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="chart-body">
-                    <div id="maintenanceHistoryChart"></div>
-                </div>
-                <div class="time-period">
-                    <button class="btn btn-sm" data-period="30d">30 días</button>
-                    <button class="btn btn-sm" data-period="3m">3 meses</button>
-                    <button class="btn btn-sm active" data-period="1y">1 año</button>
-                    <button class="btn btn-sm" data-period="all">Todo</button>
+        <!-- Distribución por Ubicación -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    Distribución por Ubicación
+                </h3>
+                <div class="card-actions">
+                    <button class="btn-card-action" id="btn-export-ubicaciones">
+                        <i class="bi bi-download"></i>
+                    </button>
                 </div>
             </div>
-
-            <!-- Gráfico de tendencia de mantenimientos -->
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h5 class="chart-title">Tendencia de Mantenimientos</h5>
-                    <div class="chart-actions">
-                        <div class="dropdown filter-dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="trendFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-funnel me-1"></i> Filtrar
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="trendFilterDropdown">
-                                <li><a class="dropdown-item active" href="#" data-tipo="todos">Todos los tipos</a></li>
-                                <li><a class="dropdown-item" href="#" data-tipo="preventivo">Preventivo</a></li>
-                                <li><a class="dropdown-item" href="#" data-tipo="correctivo">Correctivo</a></li>
-                                <li><a class="dropdown-item" href="#" data-tipo="predictivo">Predictivo</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="chart-body">
-                    <div id="maintenanceTrendChart"></div>
-                </div>
-                <div class="time-period">
-                    <button class="btn btn-sm" data-period="7d">7 días</button>
-                    <button class="btn btn-sm active" data-period="30d">30 días</button>
-                    <button class="btn btn-sm" data-period="90d">90 días</button>
-                    <button class="btn btn-sm" data-period="all">Todo</button>
-                </div>
+            <div class="card-content">
+                <canvas id="chart-ubicaciones"></canvas>
             </div>
         </div>
+    </div>
 
-        <!-- Calendario y tabla de mantenimientos -->
-        <div class="calendar-table-container">
-            <!-- Calendario de mantenimientos -->
-            <div class="calendar-card">
-                <div class="calendar-header">
-                    <h5 class="calendar-title">Calendario de Mantenimientos</h5>
-                    <div class="calendar-actions">
-                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Ver todos los eventos">
-                            <i class="bi bi-calendar3"></i>
-                        </button>
-                    </div>
-                </div>
-                <div id="maintenanceCalendar"></div>
-                <div class="chart-legend mt-3">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: var(--primary-gradient-start);"></div>
-                        <span>Preventivo</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: var(--danger-gradient-start);"></div>
-                        <span>Correctivo</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: var(--warning-gradient-start);"></div>
-                        <span>Predictivo</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: rgba(200, 200, 200, 0.6);"></div>
-                        <span>Completado</span>
-                    </div>
+    <!-- Sección de Tablas Detalladas -->
+    <div class="dashboard-tables">
+        <!-- Equipos que Requieren Atención -->
+        <div class="dashboard-card table-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-exclamation-circle-fill"></i>
+                    Equipos que Requieren Atención
+                </h3>
+                <div class="card-actions">
+                    <button class="btn-card-action" id="btn-export-atencion">
+                        <i class="bi bi-file-earmark-excel"></i>
+                    </button>
                 </div>
             </div>
-
-            <!-- Tabla de próximos mantenimientos -->
-            <div class="table-card">
-                <div class="table-header">
-                    <h5 class="table-title">Próximos Mantenimientos</h5>
-                    <div class="table-actions">
-                        <button class="btn btn-sm btn-outline-primary">
-                            Ver todos
-                        </button>
-                    </div>
-                </div>
+            <div class="card-content">
                 <div class="table-responsive">
-                    <table class="maintenance-table">
+                    <table class="dashboard-table" id="tabla-equipos-atencion">
                         <thead>
                             <tr>
                                 <th>Equipo</th>
-                                <th>Tipo</th>
-                                <th>Fecha</th>
+                                <th>Ubicación</th>
                                 <th>Estado</th>
+                                <th>Próximo Mantenimiento</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Los datos se cargarán dinámicamente con JavaScript -->
+                            <tr>
+                                <td colspan="5" class="text-center">Cargando datos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Últimos Mantenimientos Realizados -->
+        <div class="dashboard-card table-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-check2-circle"></i>
+                    Últimos Mantenimientos Realizados
+                </h3>
+                <div class="card-actions">
+                    <button class="btn-card-action" id="btn-ver-todo-historial">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="table-responsive">
+                    <table class="dashboard-table" id="tabla-ultimos-mantenimientos">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Equipo</th>
+                                <th>Tipo</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             <tr>
                                 <td colspan="4" class="text-center">Cargando datos...</td>
                             </tr>
@@ -260,92 +236,41 @@ include_once 'includes/topbar.php';
             </div>
         </div>
     </div>
+
+    <!-- Sección de Alertas y Notificaciones -->
+    <div class="alerts-section">
+        <div class="dashboard-card alerts-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-bell-fill"></i>
+                    Alertas y Notificaciones
+                </h3>
+                <div class="card-actions">
+                    <span class="alert-count" id="total-alertas">0</span>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="alerts-container" id="container-alertas">
+                    <div class="alert-loading">
+                        <div class="spinner"></div>
+                        <span>Cargando alertas...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer del Dashboard -->
+    <div class="dashboard-footer">
+        <div class="footer-info">
+            <p><strong>SIGESMANCOR</strong> - Sistema de Gestión de Mantenimiento</p>
+            <p>CORDIAL SAC © <?php echo date('Y'); ?> - Última actualización: <span id="ultima-actualizacion">--</span></p>
+        </div>
+    </div>
 </div>
 
-<style>
-    /* Estilos adicionales para mejorar la visualización de los tipos de mantenimiento */
-    .maintenance-table .status {
-        display: inline-block;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        text-align: center;
-        min-width: 90px;
-    }
-
-    .maintenance-table .status.preventivo {
-        background-color: rgba(67, 97, 238, 0.2);
-        color: #4361ee;
-    }
-
-    .maintenance-table .status.correctivo {
-        background-color: rgba(231, 76, 60, 0.2);
-        color: #e74c3c;
-    }
-
-    .maintenance-table .status.predictivo {
-        background-color: rgba(243, 156, 18, 0.2);
-        color: #f39c12;
-    }
-
-    .maintenance-table .status.completado {
-        background-color: rgba(46, 204, 113, 0.2);
-        color: #2ecc71;
-    }
-
-    .maintenance-table .status.pendiente {
-        background-color: rgba(149, 165, 166, 0.2);
-        color: #7f8c8d;
-    }
-
-    /* Estilos para el calendario */
-    .fc-event.preventivo {
-        background-color: var(--primary-gradient-start);
-        border-color: var(--primary-gradient-start);
-    }
-
-    .fc-event.correctivo {
-        background-color: var(--danger-gradient-start);
-        border-color: var(--danger-gradient-start);
-    }
-
-    .fc-event.predictivo {
-        background-color: var(--warning-gradient-start);
-        border-color: var(--warning-gradient-start);
-    }
-
-    .fc-event.completado {
-        background-color: rgba(200, 200, 200, 0.6);
-        border-color: rgba(180, 180, 180, 0.8);
-        color: #555;
-    }
-
-    /* Mejora para la visualización de tipos en la tabla */
-    .maintenance-table .tipo-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .maintenance-table .tipo-badge i {
-        font-size: 0.9rem;
-    }
-
-    .maintenance-table .tipo-badge.preventivo i {
-        color: #4361ee;
-    }
-
-    .maintenance-table .tipo-badge.correctivo i {
-        color: #e74c3c;
-    }
-
-    .maintenance-table .tipo-badge.predictivo i {
-        color: #f39c12;
-    }
-</style>
-
 <?php
-// Incluir footer
+// Incluir el footer
 include_once 'includes/footer.php';
 ?>
+```

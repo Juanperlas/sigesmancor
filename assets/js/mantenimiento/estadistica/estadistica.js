@@ -11,7 +11,7 @@ let elementosDisponibles = []
 
 // Constantes
 const $ = window.jQuery
-const ApexCharts = window.ApexCharts // Declare the ApexCharts variable
+const ApexCharts = window.ApexCharts
 
 // Verificar disponibilidad de funciones globales sin redeclararlas
 if (!window.showErrorToast) {
@@ -97,8 +97,8 @@ function inicializarTablaHistorial() {
         className: "text-center align-middle",
         width: "100px",
         render: (data) => {
-          const badgeClass = data === "Equipo" ? "bg-primary" : "bg-info"
-          return `<span class="badge ${badgeClass}">${data}</span>`
+          const badgeClass = data === "Equipo" ? "estado-activo" : "estado-mantenimiento"
+          return `<span class="estado-badge ${badgeClass}">${data}</span>`
         },
       },
       {
@@ -111,8 +111,8 @@ function inicializarTablaHistorial() {
         className: "text-center align-middle",
         width: "100px",
         render: (data) => {
-          const badgeClass = data === "Manual" ? "bg-warning text-dark" : "bg-success"
-          return `<span class="badge ${badgeClass}">${data}</span>`
+          const badgeClass = data === "Manual" ? "estado-mantenimiento" : "estado-activo"
+          return `<span class="estado-badge ${badgeClass}">${data}</span>`
         },
       },
       {
@@ -591,6 +591,7 @@ function generarGrafica() {
     contentType: "application/json",
     dataType: "json",
     success: (response) => {
+      // IMPORTANTE: Ocultar loader inmediatamente
       ocultarLoaderGrafica()
 
       if (response.success) {
@@ -601,6 +602,7 @@ function generarGrafica() {
       }
     },
     error: (xhr, status, error) => {
+      // IMPORTANTE: Ocultar loader inmediatamente
       ocultarLoaderGrafica()
       console.error("Error al generar gráfica:", error)
       mostrarError("Error de conexión al servidor")
@@ -787,6 +789,11 @@ function mostrarLoaderGrafica() {
  */
 function ocultarLoaderGrafica() {
   // El loader se oculta automáticamente cuando se renderiza la gráfica
+  // pero podemos forzar la limpieza si es necesario
+  const loader = $("#grafica-trabajo .grafica-loader")
+  if (loader.length > 0) {
+    loader.remove()
+  }
 }
 
 /**

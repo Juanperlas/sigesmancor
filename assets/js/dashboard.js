@@ -1,1121 +1,660 @@
 /**
  * Dashboard JavaScript - SIGESMANCOR
- * Funciones para gráficos y componentes interactivos del dashboard
+ * Sistema de Gestión de Mantenimiento CORDIAL SAC
  */
 
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("Dashboard JS cargado");
+// Variables globales
+let chartEstadoEquipos
+let chartMantenimientosMes
+let chartUbicaciones
+let dashboardData = {}
 
-  // Inicializar todos los componentes
-  initCharts();
-  initCalendar();
-  initTooltips();
-  initCounters();
-
-  // Manejar cambios de período en los gráficos
-  setupTimePeriodSelectors();
-
-  // Manejar filtros de categorías
-  setupCategoryFilters();
-
-  // Manejar botón de actualización
-  document.getElementById("refreshDashboard")?.addEventListener("click", () => {
-    initCharts();
-    initCalendar();
-  });
-});
-
-// Variables globales para los gráficos
-let equipmentStatusChart = null;
-let maintenanceTypeChart = null;
-let maintenanceHistoryChart = null;
-let maintenanceTrendChart = null;
-let equipmentCategoryChart = null;
-
-/**
- * Inicializa todos los gráficos del dashboard
- */
-function initCharts() {
-  // Cargar datos iniciales para los gráficos
-  loadChartData("estadisticas", null, null, function (data) {
-    // Actualizar estadísticas si es necesario
-    console.log("Estadísticas cargadas:", data);
-  });
-
-  loadChartData(
-    "historial_mantenimiento",
-    "30d",
-    "todos",
-    renderMaintenanceHistoryChart
-  );
-  loadChartData(
-    "tendencia_mantenimiento",
-    "7d",
-    "todos",
-    renderMaintenanceTrendChart
-  );
-
-  // Cargar datos para la tabla de próximos mantenimientos
-  loadTableData("proximos_mantenimientos", renderMaintenanceTable);
-
-  // Cargar eventos para el calendario
-  loadTableData("eventos_calendario", function (data) {
-    console.log("Eventos del calendario cargados:", data);
-  });
+// Configuración de colores
+const colors = {
+  primary: "#1571b0", 
+  success: "#20c997",
+  warning: "#ff8c00",
+  danger: "#e63946",
+  info: "#17a2b8",
+  secondary: "#6c757d",
 }
 
+// Declaración de la variable $ para evitar errores de lint
+const $ = window.$
+
+// Inicialización cuando el DOM está listo
+$(document).ready(() => {
+  console.log("Inicializando Dashboard SIGESMANCOR...")
+
+  // Cargar datos iniciales
+  cargarDatosDashboard()
+
+  // Configurar eventos
+  configurarEventos()
+
+  // Actualizar timestamp
+  actualizarTimestamp()
+
+  // Configurar actualización automática cada 5 minutos
+  setInterval(cargarDatosDashboard, 300000)
+})
+
 /**
- * Carga datos para los gráficos mediante AJAX
+ * Configura todos los eventos del dashboard
  */
-function loadChartData(tipo, periodo = null, categoria = null, callback) {
-  // Mostrar loader
-  const chartId = getChartIdByType(tipo);
-  if (chartId) {
-    showChartLoader(chartId);
-  }
-
-  // Construir URL con parámetros
-  let url = `api/dashboard_data.php?tipo=${tipo}`;
-  if (periodo) {
-    url += `&periodo=${periodo}`;
-  }
-  if (categoria && categoria !== "todos") {
-    url += `&categoria=${categoria}`;
-  }
-
-  console.log("Cargando datos desde:", url);
-
-  // Realizar la petición AJAX
-  fetch(url)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
-      }
-      return response.json();
+function configurarEventos() {
+  // Botón actualizar datos
+  $("#btn-actualizar-datos").on("click", function () {
+    $(this).addClass("loading")
+    cargarDatosDashboard().finally(() => {
+      $(this).removeClass("loading")
     })
-    .then((data) => {
-      console.log(`Datos recibidos para ${tipo}:`, data);
+  })
 
-      // Ocultar loader
-      if (chartId) {
-        hideChartLoader(chartId);
-      }
+  // Botón exportar resumen
+  $("#btn-exportar-resumen").on("click", exportarResumenGeneral)
 
-      // Llamar al callback con los datos
-      if (typeof callback === "function") {
-        callback(data);
-      }
-    })
-    .catch((error) => {
-      console.error(`Error al cargar datos para ${tipo}:`, error);
+  // Botones de exportación de gráficas
+  $("#btn-export-equipos").on("click", () => exportarGrafica("equipos"))
+  $("#btn-export-mantenimientos").on("click", () => exportarGrafica("mantenimientos"))
+  $("#btn-export-ubicaciones").on("click", () => exportarGrafica("ubicaciones"))
 
-      // Ocultar loader
-      if (chartId) {
-        hideChartLoader(chartId);
-      }
+  // Botones de exportación de tablas
+  $("#btn-export-atencion").on("click", () => exportarTabla("atencion"))
+  $("#btn-export-ultimos").on("click", () => exportarTabla("ultimos"))
 
-      // Mostrar mensaje de error en el gráfico
-      if (chartId) {
-        const chartElement = document.getElementById(chartId);
-        if (chartElement) {
-          chartElement.innerHTML = `
-            <div class="alert alert-danger">
-              Error al cargar datos: ${error.message}
-            </div>
-          `;
-        }
-      }
-    });
+  // Ver todo el historial
+  $("#btn-ver-todo-historial").on("click", () => {
+    window.location.href = "modulos/mantenimiento/historial/"
+  })
 }
 
 /**
- * Carga datos para las tablas mediante AJAX
+ * Carga todos los datos del dashboard
  */
-function loadTableData(tipo, callback) {
-  // Realizar la petición AJAX
-  fetch(`api/dashboard_data.php?tipo=${tipo}`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log(`Datos recibidos para tabla ${tipo}:`, data);
+async function cargarDatosDashboard() {
+  try {
+    console.log("Cargando datos del dashboard...")
 
-      // Llamar al callback con los datos
-      if (typeof callback === "function") {
-        callback(data);
-      }
-    })
-    .catch((error) => {
-      console.error(`Error al cargar datos para tabla ${tipo}:`, error);
+    // Mostrar indicadores de carga
+    mostrarCargando()
 
-      // Mostrar mensaje de error en la tabla
-      const tableBody = document.querySelector(".maintenance-table tbody");
-      if (tableBody) {
-        tableBody.innerHTML = `
-            <tr>
-              <td colspan="4" class="text-center">
-                <div class="alert alert-danger mb-0">
-                  Error al cargar datos: ${error.message}
-                </div>
-              </td>
-            </tr>
-          `;
-      }
-    });
-}
+    // Cargar datos desde la API
+    const response = await fetch("api/dashboard_data.php")
+    const data = await response.json()
 
-/**
- * Obtiene el ID del contenedor del gráfico según el tipo
- */
-function getChartIdByType(tipo) {
-  const chartMap = {
-    estado_equipos: "equipmentStatusChart",
-    tipos_mantenimiento: "maintenanceTypeChart",
-    historial_mantenimiento: "maintenanceHistoryChart",
-    tendencia_mantenimiento: "maintenanceTrendChart",
-    categorias_equipos: "equipmentCategoryChart",
-  };
+    if (data.success) {
+      dashboardData = data.data
 
-  return chartMap[tipo];
-}
+      // Actualizar estadísticas principales
+      actualizarEstadisticasPrincipales(dashboardData.estadisticas)
 
-/**
- * Muestra el loader para un gráfico
- */
-function showChartLoader(chartId) {
-  const chartContainer = document.getElementById(chartId);
-  if (!chartContainer) return;
+      // Crear gráficas
+      crearGraficas(dashboardData.graficas)
 
-  const chartBody = chartContainer.closest(".chart-body");
-  if (!chartBody) return;
+      // Cargar tablas
+      cargarTablas(dashboardData.tablas)
 
-  // Crear loader si no existe
-  let loader = chartBody.querySelector(".chart-loader");
-  if (!loader) {
-    loader = document.createElement("div");
-    loader.className = "chart-loader";
-    loader.innerHTML = '<div class="spinner"></div>';
-    chartBody.appendChild(loader);
-  }
+      // Cargar actividad reciente
+      cargarActividadReciente(dashboardData.actividad)
 
-  loader.style.display = "flex";
-}
+      // Cargar alertas
+      cargarAlertas(dashboardData.alertas)
 
-/**
- * Oculta el loader para un gráfico
- */
-function hideChartLoader(chartId) {
-  const chartContainer = document.getElementById(chartId);
-  if (!chartContainer) return;
-
-  const chartBody = chartContainer.closest(".chart-body");
-  if (!chartBody) return;
-
-  const loader = chartBody.querySelector(".chart-loader");
-  if (loader) {
-    loader.style.display = "none";
+      console.log("Datos del dashboard cargados exitosamente")
+    } else {
+      throw new Error(data.message || "Error al cargar datos")
+    }
+  } catch (error) {
+    console.error("Error al cargar datos del dashboard:", error)
+    mostrarError("Error al cargar los datos del dashboard")
+  } finally {
+    ocultarCargando()
+    actualizarTimestamp()
   }
 }
 
 /**
- * Renderiza el gráfico de estado de equipos (donut chart)
+ * Actualiza las estadísticas principales
  */
-function renderEquipmentStatusChart(data) {
-  const chartElement = document.getElementById("equipmentStatusChart");
-  if (!chartElement) return;
+function actualizarEstadisticasPrincipales(stats) {
+  // Animar números
+  animarNumero("#total-equipos", stats.totalEquipos)
+  animarNumero("#equipos-activos", stats.equiposActivos)
+  animarNumero("#mantenimientos-pendientes", stats.mantenimientosPendientes)
+  animarNumero("#equipos-criticos", stats.equiposCriticos)
 
-  // Verificar si hay datos
-  if (!data.series || data.series.length === 0) {
-    chartElement.innerHTML = `
-        <div class="alert alert-info">
-          No hay datos disponibles para mostrar.
-        </div>
-      `;
-    return;
+  // Actualizar cambios y porcentajes
+  $("#equipos-change").text(`+${stats.equiposNuevos} este mes`)
+  $("#activos-percentage").text(`${Math.round((stats.equiposActivos / stats.totalEquipos) * 100)}%`)
+  $("#pendientes-change").text("Programados")
+  $("#criticos-change").text("Requieren atención")
+}
+
+/**
+ * Crea todas las gráficas del dashboard
+ */
+function crearGraficas(graficas) {
+  // Gráfica de estado de equipos (Dona)
+  crearGraficaEstadoEquipos(graficas.estadoEquipos)
+
+  // Gráfica de mantenimientos por mes (Barras)
+  crearGraficaMantenimientosMes(graficas.mantenimientosMes)
+
+  // Gráfica de distribución por ubicación (Barras horizontales)
+  crearGraficaUbicaciones(graficas.ubicaciones)
+}
+
+/**
+ * Crea la gráfica de estado de equipos
+ */
+function crearGraficaEstadoEquipos(data) {
+  const ctx = document.getElementById("chart-estado-equipos").getContext("2d")
+
+  if (chartEstadoEquipos) {
+    chartEstadoEquipos.destroy()
   }
 
-  const options = {
-    chart: {
-      type: "donut",
-      height: 300,
-      fontFamily: "Inter, sans-serif",
-      toolbar: {
-        show: false,
-      },
+  chartEstadoEquipos = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: data.labels,
+      datasets: [
+        {
+          data: data.values,
+          backgroundColor: [colors.success, colors.warning, colors.danger, colors.secondary, colors.info],
+          borderWidth: 3,
+          borderColor: "#fff",
+        },
+      ],
     },
-    series: data.series,
-    labels: data.labels,
-    colors: ["#2ecc71", "#3498db", "#e74c3c", "#95a5a6", "#f39c12"],
-    legend: {
-      position: "bottom",
-      fontSize: "12px",
-      markers: {
-        width: 12,
-        height: 12,
-        radius: 2,
-      },
-      itemMargin: {
-        horizontal: 10,
-        vertical: 5,
-      },
-    },
-    plotOptions: {
-      pie: {
-        donut: {
-          size: "70%",
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "bottom",
           labels: {
-            show: true,
-            name: {
-              show: true,
-              fontSize: "14px",
-              fontWeight: 600,
+            padding: 15,
+            usePointStyle: true,
+            font: {
+              size: 11,
+              weight: "600",
             },
-            value: {
-              show: true,
-              fontSize: "16px",
-              fontWeight: 700,
-              formatter: (val) => val,
-            },
-            total: {
-              show: true,
-              label: "Total",
-              fontSize: "14px",
-              fontWeight: 600,
-              formatter: (w) =>
-                w.globals.seriesTotals.reduce((a, b) => a + b, 0),
+          },
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              const total = context.dataset.data.reduce((a, b) => a + b, 0)
+              const percentage = Math.round((context.parsed / total) * 100)
+              return `${context.label}: ${context.parsed} (${percentage}%)`
             },
           },
         },
       },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    responsive: [
-      {
-        breakpoint: 480,
-        options: {
-          chart: {
-            height: 250,
-          },
-          legend: {
-            position: "bottom",
-          },
-        },
-      },
-    ],
-    tooltip: {
-      y: {
-        formatter: (val, { seriesIndex, dataPointIndex, w }) => {
-          const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
-          const percent = ((val * 100) / total).toFixed(1);
-          return `${val} (${percent}%)`;
-        },
+      cutout: "60%",
+      animation: {
+        animateRotate: true,
+        duration: 1500,
       },
     },
-  };
-
-  try {
-    // Destruir gráfico existente si lo hay
-    if (equipmentStatusChart) {
-      equipmentStatusChart.destroy();
-      equipmentStatusChart = null;
-    }
-
-    // Crear nuevo gráfico
-    equipmentStatusChart = new ApexCharts(chartElement, options);
-    equipmentStatusChart.render();
-  } catch (error) {
-    console.error(
-      "Error al renderizar el gráfico de estado de equipos:",
-      error
-    );
-    chartElement.innerHTML = `
-        <div class="alert alert-danger">
-          Error al renderizar el gráfico: ${error.message}
-        </div>
-      `;
-  }
+  })
 }
 
 /**
- * Renderiza el gráfico de tipos de mantenimiento (pie chart)
+ * Crea la gráfica de mantenimientos por mes
  */
-function renderMaintenanceTypeChart(data) {
-  const chartElement = document.getElementById("maintenanceTypeChart");
-  if (!chartElement) return;
+function crearGraficaMantenimientosMes(data) {
+  const ctx = document.getElementById("chart-mantenimientos-mes").getContext("2d")
 
-  // Verificar si hay datos
-  if (!data.series || data.series.length === 0) {
-    chartElement.innerHTML = `
-        <div class="alert alert-info">
-          No hay datos disponibles para mostrar.
-        </div>
-      `;
-    return;
+  if (chartMantenimientosMes) {
+    chartMantenimientosMes.destroy()
   }
 
-  const options = {
-    chart: {
-      type: "pie",
-      height: 300,
-      fontFamily: "Inter, sans-serif",
-      toolbar: {
-        show: false,
-      },
-    },
-    series: data.series,
-    labels: data.labels,
-    colors: ["#4361ee", "#e74c3c", "#f39c12"],
-    legend: {
-      position: "bottom",
-      fontSize: "12px",
-      markers: {
-        width: 12,
-        height: 12,
-        radius: 2,
-      },
-      itemMargin: {
-        horizontal: 10,
-        vertical: 5,
-      },
-    },
-    dataLabels: {
-      enabled: true,
-      formatter: (val, { seriesIndex, dataPointIndex, w }) =>
-        Math.round(val) + "%",
-      style: {
-        fontSize: "12px",
-        fontWeight: 500,
-      },
-      dropShadow: {
-        enabled: false,
-      },
-    },
-    responsive: [
-      {
-        breakpoint: 480,
-        options: {
-          chart: {
-            height: 250,
-          },
-          legend: {
-            position: "bottom",
-          },
+  chartMantenimientosMes = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: data.labels,
+      datasets: [
+        {
+          label: "Preventivo",
+          data: data.preventivo,
+          backgroundColor: colors.success,
+          borderRadius: 4,
+          borderSkipped: false,
         },
-      },
-    ],
-    tooltip: {
-      y: {
-        formatter: (val, { seriesIndex, dataPointIndex, w }) => {
-          const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
-          const percent = ((val * 100) / total).toFixed(1);
-          return `${val} (${percent}%)`;
+        {
+          label: "Correctivo",
+          data: data.correctivo,
+          backgroundColor: colors.danger,
+          borderRadius: 4,
+          borderSkipped: false,
         },
-      },
-    },
-  };
-
-  try {
-    // Destruir gráfico existente si lo hay
-    if (maintenanceTypeChart) {
-      maintenanceTypeChart.destroy();
-      maintenanceTypeChart = null;
-    }
-
-    // Crear nuevo gráfico
-    maintenanceTypeChart = new ApexCharts(chartElement, options);
-    maintenanceTypeChart.render();
-  } catch (error) {
-    console.error(
-      "Error al renderizar el gráfico de tipos de mantenimiento:",
-      error
-    );
-    chartElement.innerHTML = `
-        <div class="alert alert-danger">
-          Error al renderizar el gráfico: ${error.message}
-        </div>
-      `;
-  }
-}
-
-/**
- * Renderiza el gráfico de historial de mantenimiento (line chart)
- */
-function renderMaintenanceHistoryChart(data) {
-  const chartElement = document.getElementById("maintenanceHistoryChart");
-  if (!chartElement) return;
-
-  // Verificar si hay datos
-  if (!data.fechas || data.fechas.length === 0) {
-    chartElement.innerHTML = `
-        <div class="alert alert-info">
-          No hay datos disponibles para mostrar.
-        </div>
-      `;
-    return;
-  }
-
-  const options = {
-    chart: {
-      type: "area",
-      height: 300,
-      fontFamily: "Inter, sans-serif",
-      toolbar: {
-        show: false,
-      },
-      zoom: {
-        enabled: false,
-      },
-    },
-    series: data.series,
-    xaxis: {
-      categories: data.fechas,
-      labels: {
-        style: {
-          fontSize: "10px",
+        {
+          label: "Programado",
+          data: data.programado,
+          backgroundColor: colors.warning,
+          borderRadius: 4,
+          borderSkipped: false,
         },
-      },
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      },
+      ],
     },
-    yaxis: {
-      labels: {
-        style: {
-          fontSize: "10px",
-        },
-      },
-    },
-    colors: ["#4361ee", "#e74c3c", "#f39c12"],
-    stroke: {
-      curve: "smooth",
-      width: 2,
-    },
-    fill: {
-      type: "gradient",
-      gradient: {
-        shadeIntensity: 1,
-        opacityFrom: 0.4,
-        opacityTo: 0.1,
-        stops: [0, 100],
-      },
-    },
-    legend: {
-      position: "bottom",
-      fontSize: "12px",
-      markers: {
-        width: 12,
-        height: 12,
-        radius: 2,
-      },
-      itemMargin: {
-        horizontal: 10,
-        vertical: 5,
-      },
-    },
-    grid: {
-      borderColor: "#f1f1f1",
-      strokeDashArray: 4,
-      xaxis: {
-        lines: {
-          show: false,
-        },
-      },
-    },
-    markers: {
-      size: 4,
-      strokeWidth: 0,
-      hover: {
-        size: 6,
-      },
-    },
-    tooltip: {
-      shared: true,
-      intersect: false,
-    },
-  };
-
-  try {
-    // Destruir gráfico existente si lo hay
-    if (maintenanceHistoryChart) {
-      maintenanceHistoryChart.destroy();
-      maintenanceHistoryChart = null;
-    }
-
-    // Crear nuevo gráfico
-    maintenanceHistoryChart = new ApexCharts(chartElement, options);
-    maintenanceHistoryChart.render();
-  } catch (error) {
-    console.error(
-      "Error al renderizar el gráfico de historial de mantenimiento:",
-      error
-    );
-    chartElement.innerHTML = `
-        <div class="alert alert-danger">
-          Error al renderizar el gráfico: ${error.message}
-        </div>
-      `;
-  }
-}
-
-/**
- * Renderiza el gráfico de tendencia de mantenimientos (area chart)
- */
-function renderMaintenanceTrendChart(data) {
-  const chartElement = document.getElementById("maintenanceTrendChart");
-  if (!chartElement) return;
-
-  // Verificar si hay datos
-  if (!data.fechas || data.fechas.length === 0) {
-    chartElement.innerHTML = `
-        <div class="alert alert-info">
-          No hay datos disponibles para mostrar.
-        </div>
-      `;
-    return;
-  }
-
-  const options = {
-    chart: {
-      type: "area",
-      height: 300,
-      fontFamily: "Inter, sans-serif",
-      toolbar: {
-        show: false,
-      },
-      zoom: {
-        enabled: false,
-      },
-    },
-    series: data.series,
-    xaxis: {
-      categories: data.fechas,
-      labels: {
-        style: {
-          fontSize: "10px",
-        },
-      },
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      },
-    },
-    yaxis: {
-      labels: {
-        style: {
-          fontSize: "10px",
-        },
-      },
-    },
-    colors: ["#2ecc71", "#f39c12"],
-    stroke: {
-      curve: "smooth",
-      width: 2,
-    },
-    fill: {
-      type: "gradient",
-      gradient: {
-        shadeIntensity: 1,
-        opacityFrom: 0.4,
-        opacityTo: 0.1,
-        stops: [0, 100],
-      },
-    },
-    legend: {
-      position: "bottom",
-      fontSize: "12px",
-      markers: {
-        width: 12,
-        height: 12,
-        radius: 2,
-      },
-      itemMargin: {
-        horizontal: 10,
-        vertical: 5,
-      },
-    },
-    grid: {
-      borderColor: "#f1f1f1",
-      strokeDashArray: 4,
-      xaxis: {
-        lines: {
-          show: false,
-        },
-      },
-    },
-    markers: {
-      size: 4,
-      strokeWidth: 0,
-      hover: {
-        size: 6,
-      },
-    },
-    tooltip: {
-      shared: true,
-      intersect: false,
-    },
-  };
-
-  try {
-    // Destruir gráfico existente si lo hay
-    if (maintenanceTrendChart) {
-      maintenanceTrendChart.destroy();
-      maintenanceTrendChart = null;
-    }
-
-    // Crear nuevo gráfico
-    maintenanceTrendChart = new ApexCharts(chartElement, options);
-    maintenanceTrendChart.render();
-  } catch (error) {
-    console.error(
-      "Error al renderizar el gráfico de tendencia de mantenimientos:",
-      error
-    );
-    chartElement.innerHTML = `
-        <div class="alert alert-danger">
-          Error al renderizar el gráfico: ${error.message}
-        </div>
-      `;
-  }
-}
-
-/**
- * Renderiza el gráfico de categorías de equipos (bar chart)
- */
-function renderEquipmentCategoryChart(data) {
-  const chartElement = document.getElementById("equipmentCategoryChart");
-  if (!chartElement) return;
-
-  // Verificar si hay datos
-  if (!data.categorias || data.categorias.length === 0) {
-    chartElement.innerHTML = `
-        <div class="alert alert-info">
-          No hay datos disponibles para mostrar.
-        </div>
-      `;
-    return;
-  }
-
-  const options = {
-    chart: {
-      type: "bar",
-      height: 300,
-      fontFamily: "Inter, sans-serif",
-      toolbar: {
-        show: false,
-      },
-    },
-    series: data.series,
-    xaxis: {
-      categories: data.categorias,
-      labels: {
-        style: {
-          fontSize: "10px",
-        },
-      },
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      },
-    },
-    yaxis: {
-      labels: {
-        style: {
-          fontSize: "10px",
-        },
-      },
-    },
-    colors: ["#4361ee", "#2ecc71", "#f39c12", "#9b59b6", "#3498db", "#e74c3c"],
-    plotOptions: {
-      bar: {
-        borderRadius: 4,
-        columnWidth: "60%",
-        distributed: true,
-        dataLabels: {
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
           position: "top",
-        },
-      },
-    },
-    dataLabels: {
-      enabled: true,
-      formatter: (val) => val,
-      offsetY: -20,
-      style: {
-        fontSize: "10px",
-        colors: ["#304758"],
-      },
-    },
-    legend: {
-      show: false,
-    },
-    grid: {
-      borderColor: "#f1f1f1",
-      strokeDashArray: 4,
-      xaxis: {
-        lines: {
-          show: false,
-        },
-      },
-    },
-    tooltip: {
-      shared: false,
-      intersect: true,
-    },
-  };
-
-  try {
-    // Destruir gráfico existente si lo hay
-    if (equipmentCategoryChart) {
-      equipmentCategoryChart.destroy();
-      equipmentCategoryChart = null;
-    }
-
-    // Crear nuevo gráfico
-    equipmentCategoryChart = new ApexCharts(chartElement, options);
-    equipmentCategoryChart.render();
-  } catch (error) {
-    console.error(
-      "Error al renderizar el gráfico de categorías de equipos:",
-      error
-    );
-    chartElement.innerHTML = `
-        <div class="alert alert-danger">
-          Error al renderizar el gráfico: ${error.message}
-        </div>
-      `;
-  }
-}
-
-/**
- * Renderiza la tabla de próximos mantenimientos
- */
-function renderMaintenanceTable(data) {
-  const tableBody = document.querySelector(".maintenance-table tbody");
-  if (!tableBody) return;
-
-  // Limpiar tabla
-  tableBody.innerHTML = "";
-
-  // Verificar si hay datos
-  if (!data || data.length === 0) {
-    tableBody.innerHTML = `
-        <tr>
-          <td colspan="4" class="text-center">
-            No hay mantenimientos programados próximamente.
-          </td>
-        </tr>
-      `;
-    return;
-  }
-
-  // Añadir filas
-  data.forEach((item) => {
-    const row = document.createElement("tr");
-
-    // Determinar clase de estado
-    let statusClass = "pending";
-    if (item.estado === "completado") {
-      statusClass = "completed";
-    } else if (item.tipo === "programado") {
-      statusClass = "programmed";
-    }
-
-    // Determinar texto de tipo
-    let tipoTexto = "Preventivo";
-    if (item.tipo === "correctivo") {
-      tipoTexto = "Correctivo";
-    } else if (item.tipo === "programado") {
-      tipoTexto = "Programado";
-    }
-
-    // Crear contenido de la fila
-    row.innerHTML = `
-        <td>${item.equipo}</td>
-        <td>${tipoTexto}</td>
-        <td>${item.fecha}</td>
-        <td><span class="status ${statusClass}">${
-      item.estado === "pendiente" ? "Pendiente" : "Completado"
-    }</span></td>
-      `;
-
-    tableBody.appendChild(row);
-  });
-}
-
-/**
- * Inicializa el calendario con eventos de mantenimiento
- */
-function initCalendar() {
-  const calendarEl = document.getElementById("maintenanceCalendar");
-  if (!calendarEl) return;
-
-  // Cargar eventos del calendario
-  fetch("api/dashboard_data.php?tipo=eventos_calendario")
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((eventos) => {
-      console.log("Eventos del calendario:", eventos);
-
-      // Inicializar FullCalendar
-      const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: "dayGridMonth",
-        headerToolbar: {
-          left: "prev,next today",
-          center: "title",
-          right: "dayGridMonth,listWeek",
-        },
-        events: eventos,
-        locale: "es",
-        height: "auto",
-        contentHeight: "auto",
-        aspectRatio: 1.5,
-        eventTimeFormat: {
-          hour: "2-digit",
-          minute: "2-digit",
-          meridiem: false,
-        },
-        eventClick: (info) => {
-          // Mostrar detalles del evento
-          alert(
-            `${info.event.title}\n${info.event.extendedProps.description || ""}`
-          );
-        },
-        eventClassNames: (arg) => {
-          // Añadir clase según el tipo de evento
-          return [arg.event.extendedProps.tipo];
-        },
-        dayMaxEvents: true,
-        views: {
-          dayGrid: {
-            dayMaxEvents: 2,
+          labels: {
+            usePointStyle: true,
+            padding: 15,
+            font: {
+              size: 11,
+              weight: "600",
+            },
           },
         },
-        noEventsContent: "No hay eventos programados",
-      });
-
-      calendar.render();
-    })
-    .catch((error) => {
-      console.error("Error al cargar eventos del calendario:", error);
-      calendarEl.innerHTML = `
-          <div class="alert alert-danger">
-            Error al cargar el calendario: ${error.message}
-          </div>
-        `;
-    });
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false,
+          },
+          ticks: {
+            font: {
+              size: 10,
+              weight: "500",
+            },
+          },
+        },
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: "rgba(0,0,0,0.1)",
+          },
+          ticks: {
+            font: {
+              size: 10,
+              weight: "500",
+            },
+          },
+        },
+      },
+      animation: {
+        duration: 1500,
+        easing: "easeOutQuart",
+      },
+    },
+  })
 }
 
 /**
- * Inicializa los tooltips de Bootstrap
+ * Crea la gráfica de distribución por ubicaciones
  */
-function initTooltips() {
-  const tooltipTriggerList = [].slice.call(
-    document.querySelectorAll('[data-bs-toggle="tooltip"]')
-  );
+function crearGraficaUbicaciones(data) {
+  const ctx = document.getElementById("chart-ubicaciones").getContext("2d")
 
-  // Check if Bootstrap's tooltip class is available
-  if (
-    typeof bootstrap !== "undefined" &&
-    typeof bootstrap.Tooltip === "function"
-  ) {
-    tooltipTriggerList.map(
-      (tooltipTriggerEl) =>
-        new bootstrap.Tooltip(tooltipTriggerEl, {
-          boundary: document.body,
-        })
-    );
-  } else {
-    console.warn(
-      "Bootstrap tooltips are not initialized. Ensure Bootstrap is properly loaded."
-    );
+  if (chartUbicaciones) {
+    chartUbicaciones.destroy()
+  }
+
+  chartUbicaciones = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: data.labels,
+      datasets: [
+        {
+          label: "Equipos",
+          data: data.values,
+          backgroundColor: colors.primary,
+          borderRadius: 4,
+          borderSkipped: false,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: "y",
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          grid: {
+            color: "rgba(0,0,0,0.1)",
+          },
+          ticks: {
+            font: {
+              size: 10,
+              weight: "500",
+            },
+          },
+        },
+        y: {
+          grid: {
+            display: false,
+          },
+          ticks: {
+            font: {
+              size: 10,
+              weight: "500",
+            },
+          },
+        },
+      },
+      animation: {
+        duration: 1500,
+        easing: "easeOutQuart",
+      },
+    },
+  })
+}
+
+/**
+ * Carga las tablas del dashboard
+ */
+function cargarTablas(tablas) {
+  // Tabla de equipos que requieren atención
+  cargarTablaEquiposAtencion(tablas.equiposAtencion)
+
+  // Tabla de últimos mantenimientos
+  cargarTablaUltimosMantenimientos(tablas.ultimosMantenimientos)
+}
+
+/**
+ * Carga la tabla de equipos que requieren atención
+ */
+function cargarTablaEquiposAtencion(equipos) {
+  const tbody = $("#tabla-equipos-atencion tbody")
+  tbody.empty()
+
+  if (equipos.length === 0) {
+    tbody.append(`
+            <tr>
+                <td colspan="5" class="text-center">No hay equipos que requieran atención inmediata</td>
+            </tr>
+        `)
+    return
+  }
+
+  equipos.forEach((equipo) => {
+    const prioridadClass = equipo.prioridad.toLowerCase()
+    const estadoClass = equipo.estado.toLowerCase()
+
+    tbody.append(`
+            <tr>
+                <td>
+                    <strong>${equipo.nombre}</strong><br>
+                    <small class="text-muted">${equipo.codigo}</small>
+                </td>
+                <td>${equipo.ubicacion}</td>
+                <td><span class="status-badge ${estadoClass}">${equipo.estado}</span></td>
+                <td>
+                    <strong>${equipo.proximoMantenimiento}</strong><br>
+                    <small class="text-muted">${equipo.tiempoRestante}</small>
+                </td>
+                <td>
+                    <button class="btn-table-action" onclick="verEquipo(${equipo.id})" title="Ver detalles">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn-table-action" onclick="programarMantenimiento(${equipo.id})" title="Programar mantenimiento">
+                        <i class="bi bi-calendar-plus"></i>
+                    </button>
+                </td>
+            </tr>
+        `)
+  })
+}
+
+/**
+ * Carga la tabla de últimos mantenimientos
+ */
+function cargarTablaUltimosMantenimientos(mantenimientos) {
+  const tbody = $("#tabla-ultimos-mantenimientos tbody")
+  tbody.empty()
+
+  if (mantenimientos.length === 0) {
+    tbody.append(`
+            <tr>
+                <td colspan="4" class="text-center">No hay mantenimientos recientes</td>
+            </tr>
+        `)
+    return
+  }
+
+  mantenimientos.forEach((mantenimiento) => {
+    const tipoClass = mantenimiento.tipo.toLowerCase()
+    const estadoClass = mantenimiento.estado.toLowerCase()
+
+    tbody.append(`
+            <tr>
+                <td>${mantenimiento.fecha}</td>
+                <td>
+                    <strong>${mantenimiento.equipo}</strong><br>
+                    <small class="text-muted">${mantenimiento.codigo}</small>
+                </td>
+                <td><span class="status-badge ${tipoClass}">${mantenimiento.tipo}</span></td>
+                <td>${mantenimiento.descripcion}</td>
+            </tr>
+        `)
+  })
+}
+
+/**
+ * Carga la actividad reciente
+ */
+function cargarActividadReciente(actividades) {
+  const container = $("#timeline-actividad")
+  container.empty()
+
+  if (actividades.length === 0) {
+    container.append(`
+            <div class="timeline-loading">
+                <span>No hay actividad reciente</span>
+            </div>
+        `)
+    return
+  }
+
+  actividades.forEach((actividad) => {
+    const iconClass = getActivityIconClass(actividad.tipo)
+
+    container.append(`
+            <div class="timeline-item">
+                <div class="timeline-icon ${iconClass}">
+                    <i class="bi ${getActivityIcon(actividad.tipo)}"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-title">${actividad.titulo}</div>
+                    <div class="timeline-description">${actividad.descripcion}</div>
+                    <div class="timeline-time">${actividad.tiempo}</div>
+                </div>
+            </div>
+        `)
+  })
+}
+
+/**
+ * Carga las alertas y notificaciones
+ */
+function cargarAlertas(alertas) {
+  const container = $("#container-alertas")
+  const totalAlertas = $("#total-alertas")
+
+  container.empty()
+  totalAlertas.text(alertas.length)
+
+  if (alertas.length === 0) {
+    container.append(`
+            <div class="alert-loading">
+                <span>No hay alertas pendientes</span>
+            </div>
+        `)
+    return
+  }
+
+  alertas.forEach((alerta) => {
+    const tipoClass = alerta.tipo.toLowerCase()
+
+    container.append(`
+            <div class="alert-item ${tipoClass}">
+                <div class="alert-icon">
+                    <i class="bi ${getAlertIcon(alerta.tipo)}"></i>
+                </div>
+                <div class="alert-content">
+                    <div class="alert-title">${alerta.titulo}</div>
+                    <div class="alert-description">${alerta.descripcion}</div>
+                    <div class="alert-time">${alerta.tiempo}</div>
+                </div>
+            </div>
+        `)
+  })
+}
+
+/**
+ * Funciones auxiliares
+ */
+function getActivityIconClass(tipo) {
+  const classes = {
+    mantenimiento: "success",
+    alerta: "warning",
+    error: "danger",
+    info: "info",
+  }
+  return classes[tipo] || "info"
+}
+
+function getActivityIcon(tipo) {
+  const icons = {
+    mantenimiento: "bi-tools",
+    alerta: "bi-exclamation-triangle",
+    error: "bi-x-circle",
+    info: "bi-info-circle",
+  }
+  return icons[tipo] || "bi-info-circle"
+}
+
+function getAlertIcon(tipo) {
+  const icons = {
+    critical: "bi-exclamation-triangle-fill",
+    warning: "bi-exclamation-circle-fill",
+    info: "bi-info-circle-fill",
+  }
+  return icons[tipo] || "bi-info-circle-fill"
+}
+
+/**
+ * Anima un número desde 0 hasta el valor final
+ */
+function animarNumero(selector, valorFinal, duracion = 1500) {
+  const elemento = $(selector)
+  const valorInicial = 0
+  const incremento = valorFinal / (duracion / 16)
+  let valorActual = valorInicial
+
+  const timer = setInterval(() => {
+    valorActual += incremento
+    if (valorActual >= valorFinal) {
+      valorActual = valorFinal
+      clearInterval(timer)
+    }
+    elemento.text(Math.floor(valorActual).toLocaleString())
+  }, 16)
+}
+
+/**
+ * Funciones de exportación
+ */
+function exportarResumenGeneral() {
+  window.open("api/dashboard_data.php?export=resumen", "_blank")
+}
+
+function exportarGrafica(tipo) {
+  let chart
+  switch (tipo) {
+    case "equipos":
+      chart = chartEstadoEquipos
+      break
+    case "mantenimientos":
+      chart = chartMantenimientosMes
+      break
+    case "ubicaciones":
+      chart = chartUbicaciones
+      break
+  }
+
+  if (chart) {
+    const url = chart.toBase64Image()
+    const link = document.createElement("a")
+    link.download = `grafica-${tipo}-${new Date().toISOString().split("T")[0]}.png`
+    link.href = url
+    link.click()
   }
 }
 
-/**
- * Inicializa los contadores animados
- */
-function initCounters() {
-  const counters = document.querySelectorAll(".counter-value");
-
-  counters.forEach((counter) => {
-    const target = Number.parseInt(counter.getAttribute("data-target") || "0");
-    const duration = 1500; // ms
-    const step = target / (duration / 16); // 60fps
-
-    let current = 0;
-    const updateCounter = () => {
-      current += step;
-      if (current < target) {
-        counter.textContent = Math.ceil(current);
-        requestAnimationFrame(updateCounter);
-      } else {
-        counter.textContent = target;
-      }
-    };
-
-    updateCounter();
-  });
+function exportarTabla(tipo) {
+  window.open(`api/dashboard_data.php?export=tabla&tipo=${tipo}`, "_blank")
 }
 
 /**
- * Configura los selectores de período de tiempo para los gráficos
+ * Funciones de navegación
  */
-function setupTimePeriodSelectors() {
-  const timePeriodButtons = document.querySelectorAll(".time-period .btn");
+function verEquipo(id) {
+  window.location.href = `modulos/equipos/equipos/?id=${id}`
+}
 
-  timePeriodButtons.forEach((button) => {
-    button.addEventListener("click", function () {
-      // Remover la clase active de todos los botones
-      this.parentElement.querySelectorAll(".btn").forEach((btn) => {
-        btn.classList.remove("active");
-      });
-
-      // Añadir la clase active al botón clickeado
-      this.classList.add("active");
-
-      // Obtener el período seleccionado
-      const period = this.dataset.period;
-
-      // Obtener el tipo de gráfico
-      const chartCard = this.closest(".chart-card");
-      const chartBody = chartCard.querySelector(".chart-body");
-      const chartCanvas = chartBody.querySelector("div");
-
-      if (chartCanvas) {
-        const chartId = chartCanvas.id;
-
-        // Determinar el tipo de datos a cargar
-        let dataType = "";
-        if (chartId === "maintenanceHistoryChart") {
-          dataType = "historial_mantenimiento";
-        } else if (chartId === "maintenanceTrendChart") {
-          dataType = "tendencia_mantenimiento";
-        } else if (chartId === "maintenanceTypeChart") {
-          dataType = "tipos_mantenimiento";
-        }
-
-        // Cargar datos actualizados
-        if (dataType) {
-          // Obtener categoría seleccionada si existe
-          const filterDropdown = chartCard.querySelector(".filter-dropdown");
-          let categoria = "todos";
-
-          if (filterDropdown) {
-            const activeFilter = filterDropdown.querySelector(
-              ".dropdown-item.active"
-            );
-            if (activeFilter) {
-              categoria = activeFilter.dataset.categoria;
-            }
-          }
-
-          loadChartData(
-            dataType,
-            period,
-            categoria,
-            getCallbackForChart(chartId)
-          );
-        }
-      }
-    });
-  });
+function programarMantenimiento(id) {
+  window.location.href = `modulos/mantenimiento/programado/?equipo=${id}`
 }
 
 /**
- * Configura los filtros de categorías para los gráficos
+ * Funciones de utilidad
  */
-function setupCategoryFilters() {
-  const filterDropdowns = document.querySelectorAll(".filter-dropdown");
-
-  filterDropdowns.forEach((dropdown) => {
-    const dropdownItems = dropdown.querySelectorAll(".dropdown-item");
-
-    dropdownItems.forEach((item) => {
-      item.addEventListener("click", function (e) {
-        e.preventDefault();
-
-        // Remover la clase active de todos los items
-        dropdownItems.forEach((di) => di.classList.remove("active"));
-
-        // Añadir la clase active al item clickeado
-        this.classList.add("active");
-
-        // Actualizar el texto del botón
-        const dropdownToggle = dropdown.querySelector(".dropdown-toggle");
-        if (dropdownToggle) {
-          dropdownToggle.innerHTML = `<i class="bi bi-funnel me-1"></i> ${this.textContent}`;
-        }
-
-        // Obtener la categoría seleccionada
-        const categoria = this.dataset.categoria || "todos";
-
-        // Obtener el tipo de gráfico
-        const chartCard = dropdown.closest(".chart-card");
-        const chartBody = chartCard.querySelector(".chart-body");
-        const chartCanvas = chartBody.querySelector("div");
-
-        if (chartCanvas) {
-          const chartId = chartCanvas.id;
-
-          // Determinar el tipo de datos a cargar
-          let dataType = "";
-          if (chartId === "maintenanceHistoryChart") {
-            dataType = "historial_mantenimiento";
-          } else if (chartId === "equipmentStatusChart") {
-            dataType = "estado_equipos";
-          }
-
-          // Obtener período seleccionado si existe
-          let period = "1y";
-          const timePeriod = chartCard.querySelector(".time-period");
-          if (timePeriod) {
-            const activeButton = timePeriod.querySelector(".btn.active");
-            if (activeButton) {
-              period = activeButton.dataset.period;
-            }
-          }
-
-          // Cargar datos actualizados
-          if (dataType) {
-            loadChartData(
-              dataType,
-              period,
-              categoria,
-              getCallbackForChart(chartId)
-            );
-          }
-        }
-      });
-    });
-  });
+function mostrarCargando() {
+  // Implementar indicadores de carga si es necesario
 }
 
-/**
- * Obtiene la función de callback adecuada para cada gráfico
- */
-function getCallbackForChart(chartId) {
-  const callbackMap = {
-    equipmentStatusChart: renderEquipmentStatusChart,
-    maintenanceTypeChart: renderMaintenanceTypeChart,
-    maintenanceHistoryChart: renderMaintenanceHistoryChart,
-    maintenanceTrendChart: renderMaintenanceTrendChart,
-    equipmentCategoryChart: renderEquipmentCategoryChart,
-  };
-
-  return callbackMap[chartId];
+function ocultarCargando() {
+  // Ocultar indicadores de carga
 }
+
+function mostrarError(mensaje) {
+  console.error(mensaje)
+  // Implementar notificación de error
+}
+
+function actualizarTimestamp() {
+  const ahora = new Date()
+  const timestamp = ahora.toLocaleString("es-ES", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  })
+  $("#ultima-actualizacion").text(timestamp)
+}
+
+// Funciones adicionales para interactividad
+$(document).on("click", ".stat-card", function () {
+  $(this).addClass("clicked")
+  setTimeout(() => {
+    $(this).removeClass("clicked")
+  }, 200)
+})
+
+// Efecto de hover en las gráficas
+$("canvas").hover(
+  function () {
+    $(this).css("cursor", "pointer")
+  },
+  function () {
+    $(this).css("cursor", "default")
+  },
+)

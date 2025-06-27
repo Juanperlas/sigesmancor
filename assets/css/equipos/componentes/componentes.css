@@ -266,6 +266,7 @@
 /* Alinear a la izquierda solo la columna de nombre */
 #componentes-table td:nth-child(3) {
   text-align: left;
+  font-weight: 600;
 }
 
 /* Estilo para la columna de orómetro anterior */

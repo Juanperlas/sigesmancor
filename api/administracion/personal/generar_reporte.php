@@ -285,7 +285,7 @@ try {
 
     // Logo si está disponible
     if ($logoPath && $logoType) {
-        $pdf->Image($logoPath, $pdf->getPageWidth() - 55, 8, 40, '', $logoType, '', 'T', false, 300, '', false, false, 0);
+        $pdf->Image($logoPath, $pdf->getPageWidth() - 45, 8, 35, '', $logoType, '', 'T', false, 300, '', false, false, 0);
     }
 
     // Título principal compacto

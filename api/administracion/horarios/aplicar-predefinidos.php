@@ -1,4 +1,7 @@
 <?php
+// Configurar zona horaria al inicio del archivo
+date_default_timezone_set('America/Lima'); // Ajusta según tu zona horaria
+
 // Incluir archivos necesarios
 require_once '../../../db/funciones.php';
 require_once '../../../db/conexion.php';
